@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gay Detection</title>
+</head>
+<body>
+    <h1>Gay Detection by Name</h1>
+    <form method="POST" action="/detect_gender">
+        <label for="name">Enter a name:</label>
+        <input type="text" id="name" name="name" required>
+        <button type="submit">Detect Gay</button>
+    </form>
+    <img alt="photo" style="height: 30%; width: 30%;" src="{{ src }}"/>
+
+    {% if name %}
+        <h2>Results</h2>
+        <p>Name: {{ name }}</p>
+        <p>Is Gay: {{ is_gay }}</p>
+        <p>Gender: {{ gender }}</p>
+        <p>Probability: {{ probability }}%</p>
+    {% endif %}
+</body>
+</html>

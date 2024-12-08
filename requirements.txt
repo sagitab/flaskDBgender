@@ -1,0 +1,7 @@
+flask
+werkzeug
+requests
+flask-mysql
+mysql-connector-python
+
+

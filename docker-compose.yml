@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  flask-app:
+    build: .
+    container_name: flask_app
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=main.py
+      - FLASK_ENV=development
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DB=${MYSQL_DB}
+    depends_on:
+      - mysql
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: DataL123  # Set the root password
+      MYSQL_DATABASE: mydb           # Create the default database
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./db-scripts:/docker-entrypoint-initdb.d  # Mount init.sql for database initialization
+    networks:
+      - app-network
+
+volumes:
+  mysql-data:
+
+networks:
+  app-network:
+    driver: bridge
