@@ -5,7 +5,7 @@ services:
     build: .
     container_name: flask_app
     ports:
-      - "5000:5000"
+      - "${PORT}:${PORT}"
     environment:
       - FLASK_APP=main.py
       - FLASK_ENV=development
@@ -13,6 +13,7 @@ services:
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DB=${MYSQL_DB}
+      - PORT=${PORT}
     depends_on:
       - mysql
     volumes:
@@ -23,8 +24,8 @@ services:
     image: mysql:8.0
     container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: DataL123  # Set the root password
-      MYSQL_DATABASE: mydb           # Create the default database
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}  # Set the root password
+      MYSQL_DATABASE: ${MYSQL_DB}           # Create the default database
     ports:
       - "3306:3306"
     volumes:
