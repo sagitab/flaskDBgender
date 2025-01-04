@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   flask-app:
-    build: .
+    image: sagisen/flaskaws:4.0
     container_name: flask_app
     ports:
-      - "${PORT}:${PORT}"
+      - "${PORT:-5002}:${PORT:-5002}"
     environment:
       - FLASK_APP=main.py
       - FLASK_ENV=development
@@ -13,26 +11,31 @@ services:
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DB=${MYSQL_DB}
-      - PORT=${PORT}
+      - PORT=${PORT:-5002}
     depends_on:
-      - mysql
-    volumes:
-      - .:/app
+      mysql:
+        condition: service_healthy  # Ensures flask-app waits for mysql to be healthy
     networks:
       - app-network
+
   mysql:
     image: mysql:8.0
     container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}  # Set the root password
-      MYSQL_DATABASE: ${MYSQL_DB}           # Create the default database
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./db-scripts:/docker-entrypoint-initdb.d  # Mount init.sql for database initialization
+      - ./db-scripts:/docker-entrypoint-initdb.d
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3  # Will retry 3 times before marking the MySQL container as unhealthy
 
 volumes:
   mysql-data:
