@@ -8,7 +8,7 @@ pipeline {
         stage('Clean') {
             steps {
                 sh '''
-                rm -rf FLASKDOCKER
+                rm -rf flaskDBgender
                 '''
             }
         }
@@ -17,7 +17,7 @@ pipeline {
                 echo 'Clone Code Stage: Cloning repository...'
                 sh '''
                 git clone https://github.com/sagitab/flaskDBgender.git
-                cd FLASKDOCKER
+                cd flaskDBgender
                 '''
             }
         }
