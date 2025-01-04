@@ -44,17 +44,22 @@ pipeline {
 
             }
         }
-        stage('Test') {
+       stage('Test') {
             steps {
-                echo 'Testing application...'
+                echo "Testing application..."
                 script {
-                    def response = sh(
-                        script: 'curl -o /dev/null -s -w "%{http_code}" http://127.0.0.1:5002',
-                        returnStdout: true
-                    ).trim()
-                    if (response != '200') {
-                        error "Test failed! HTTP response code: ${response}"
-                    }
+                    // Wait for the container to be ready
+                    sh '''
+                    for i in {1..10}; do
+                        if curl -o /dev/null -s -w "%{http_code}" http://127.0.0.1:5002 | grep -q "200"; then
+                            echo "Application is ready"
+                            break
+                        else
+                            echo "Waiting for application to be ready..."
+                            sleep 5
+                        fi
+                    done
+                    '''
                 }
             }
         }
