@@ -34,11 +34,14 @@ pipeline {
         stage('Run Container') {
             steps {
                 echo 'Running Docker container...'
-                sh '''
-                  docker stop flaskaws || true
-                  docker rm flaskaws || true
-                  docker run -d --name flaskaws -p 5002:5002 ${image_name}
+               sh '''
+                if docker ps -a --format '{{.Names}}' | grep -q "flaskaws"; then
+                    docker stop flaskaws || true
+                    docker rm flaskaws || true
+                fi
+                docker run -d --name flaskaws -p 5002:5002 sagisen/flaskaws:0.0.7
                 '''
+
             }
         }
         stage('Test') {
