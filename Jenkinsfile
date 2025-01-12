@@ -65,6 +65,12 @@ pipeline {
         }
         stage('Deploy') {
             steps {
+                echo "Running the deployment script..."
+                sh 'python deploy.py'
+            }
+        }
+        stage('Push image to dockerhub') {
+            steps {
                 echo 'Pushing Docker image to registry...'
                 withCredentials([usernamePassword(credentialsId: 'docker_creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh '''

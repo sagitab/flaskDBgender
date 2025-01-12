@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import requests
-import mysql.connector
+import mysql.connector 
 import os
 import random
 from werkzeug.utils import secure_filename
