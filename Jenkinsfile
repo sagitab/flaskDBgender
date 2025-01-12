@@ -31,7 +31,7 @@ pipeline {
                 }
             }
         }
-        stage('Run Container') {
+        stage('Run script on ec2') {
             steps {
                 echo 'Running Docker container...'
                sh '''
