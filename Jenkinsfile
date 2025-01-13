@@ -1,6 +1,7 @@
 pipeline {
     agent any
     environment {
+        ,,aws_keys
         build_number = "${env.BUILD_NUMBER}" // Build number from Jenkins
         image_name = "sagisen/flaskaws:0.0.${env.BUILD_NUMBER}" // Docker image name
     }
@@ -31,39 +32,61 @@ pipeline {
                 }
             }
         }
-        stage('Run script on ec2') {
-            steps {
-                echo 'Running Docker container...'
-               sh '''
-                if docker ps -a --format '{{.Names}}' | grep -q "flaskaws"; then
-                    docker stop flaskaws || true
-                    docker rm flaskaws || true
-                fi
-                docker run -d --name flaskaws -p 5002:5002 sagisen/flaskaws:0.0.7
-                '''
+    //     stage('Run script on ec2') {
+    //         steps {
+    //             echo 'Running Docker container...'
+    //            sh '''
+    //             if docker ps -a --format '{{.Names}}' | grep -q "flaskaws"; then
+    //                 docker stop flaskaws || true
+    //                 docker rm flaskaws || true
+    //             fi
+    //             docker run -d --name flaskaws -p 5002:5002 sagisen/flaskaws:0.0.7
+    //             '''
 
-            }
-        }
-       stage('Test') {
+    //         }
+    //     }
+    //    stage('Test') {
+    //         steps {
+    //             echo "Testing application..."
+    //             script {
+    //                 // Wait for the container to be ready
+    //                 sh '''
+    //                 for i in {1..10}; do
+    //                     if curl -o /dev/null -s -w "%{http_code}" http://127.0.0.1:5002 | grep -q "200"; then
+    //                         echo "Application is ready"
+    //                         break
+    //                     else
+    //                         echo "Waiting for application to be ready..."
+    //                         sleep 5
+    //                     fi
+    //                 done
+    //                 '''
+    //             }
+    //         }
+    //     }
+         stage('Setup Environment') {
             steps {
-                echo "Testing application..."
-                script {
-                    // Wait for the container to be ready
-                    sh '''
-                    for i in {1..10}; do
-                        if curl -o /dev/null -s -w "%{http_code}" http://127.0.0.1:5002 | grep -q "200"; then
-                            echo "Application is ready"
-                            break
-                        else
-                            echo "Waiting for application to be ready..."
-                            sleep 5
-                        fi
-                    done
-                    '''
+                withCredentials([
+                    usernamePassword(credentialsId: 'aws_keys',
+                                     usernameVariable: 'AWS_USERNAME',
+                                     passwordVariable: 'AWS_SECRET_KEY')
+                ]) {
+                    script {
+                        // Expose credentials to the rest of the pipeline
+                        env.AWS_ACCESS_KEY = AWS_USERNAME
+                        env.AWS_SECRET_KEY = AWS_SECRET_KEY
+                        env.MYSQL_HOST='mysql'
+                        env.MYSQL_USER='root'
+                        env.MYSQL_PASSWORD= credentials('sql_pass')
+                        env.MYSQL_DB='mydb'
+                        env.PORT=5002
+                        env.SSH_KEY_PATH= credentials('key_path')
+                    }
                 }
             }
         }
         stage('Deploy') {
+  
             steps {
                 echo "Running the deployment script..."
                 sh 'python deploy.py'
