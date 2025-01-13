@@ -1,7 +1,6 @@
 pipeline {
     agent any
     environment {
-        ,,aws_keys
         build_number = "${env.BUILD_NUMBER}" // Build number from Jenkins
         image_name = "sagisen/flaskaws:0.0.${env.BUILD_NUMBER}" // Docker image name
     }
