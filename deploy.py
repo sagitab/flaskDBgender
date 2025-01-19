@@ -98,9 +98,9 @@ def upload_files(public_ip, private_key_path):
     files_to_upload = [
         "setup.sh",
         "docker-compose.yml",
-        ".env"
+        # dont includ ".env" dont exist when do git clone configure env in pipeline
     ]
-
+    
     # First, create the db-scripts directory
     create_directory_on_ec2(public_ip, private_key_path, "db-scripts")
 
