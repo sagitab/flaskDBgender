@@ -1,0 +1,84 @@
+name: Flask CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull requests to the main branch
+
+jobs:
+  ci-cd:
+    runs-on: ubuntu-latest
+
+    env:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_DB: mydb
+      PORT: 5002
+
+    steps:
+      # Stage 1: Clean workspace
+      - name: Clean Workspace
+        run: |
+          echo "Cleaning workspace..."
+          rm -rf flaskDBgender
+
+      # Stage 2: Checkout Repository
+      - name: Checkout Main Repository
+        uses: actions/checkout@v3
+
+      # Stage 3: Clone Additional Repository (if needed)
+      - name: Clone Dependency Repository
+        run: |
+          echo "Cloning external repository..."
+          git clone https://github.com/sagitab/flaskDBgender.git
+
+      # Stage 4: Build Docker Image
+      - name: Build Docker Image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          IMAGE_NAME: "sagisen/flaskaws:0.0.0.${github.run_number}"  
+        run: |
+          echo "Building Docker image..."
+          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+          docker build -t ${image_name} flaskDBgender
+
+      # Stage 5: Push Docker Image
+      - name: Push Docker Image to Registry
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          IMAGE_NAME: "sagisen/flaskaws:0.0.0.${github.run_number}"  
+        run: |
+          echo "Pushing Docker image to registry..."
+          docker tag ${{ IMAGE_NAME }} ${{ secrets.DOCKER_USERNAME }}/${{ IMAGE_NAME }}
+          docker push ${IMAGE_NAME}
+
+      # # Stage 6: Run Tests
+      # - name: Run Application Tests
+      #   run: |
+      #     echo "Running tests..."
+      #     docker run --rm ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }} pytest tests/
+
+      # # Stage 7: Configure Environment
+      # - name: Configure Environment
+      #   env:
+      #     AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      #     AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      #     MYSQL_PASSWORD: ${{ secrets.SQL_PASS }}
+      #     SSH_KEY_PATH: ${{ secrets.KEY_PATH }}
+      #   run: |
+      #     echo "Setting up environment..."
+      #     export AWS_ACCESS_KEY=$AWS_ACCESS_KEY
+      #     export AWS_SECRET_KEY=$AWS_SECRET_KEY
+      #     export MYSQL_PASSWORD=$MYSQL_PASSWORD
+      #     export SSH_KEY_PATH=$SSH_KEY_PATH
+
+      # Stage 8: Deploy Application
+      - name: Deploy Application
+        run: |
+          echo "Deploying application..."
+          # Add deployment commands here
