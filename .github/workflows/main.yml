@@ -34,37 +34,35 @@ jobs:
         run: |
           echo "Cloning external repository..."
           git clone https://github.com/sagitab/flaskDBgender.git
-          cd flaskDBgender
 
       # Stage 4: Build Docker Image
       - name: Build Docker Image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          IMAGE_NAME: "sagisen/flaskaws:0.0.0.${github.run_number}"  
+          IMAGE_NAME: "sagisen/flaskaws:0.0.0.${{ github.run_number }}"  
         run: |
           echo "Building Docker image..."
           echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t ${IMAGE_NAME} .
+          docker build -t ${IMAGE_NAME} flaskDBgender
 
       # Stage 5: Push Docker Image
       - name: Push Docker Image to Registry
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          IMAGE_NAME: "sagisen/flaskaws:0.0.0.${github.run_number}"  
+          IMAGE_NAME: "sagisen/flaskaws:0.0.0.${{ github.run_number }}"  
         run: |
           echo "Pushing Docker image to registry..."
-          docker tag ${IMAGE_NAME} ${{ secrets.DOCKER_USERNAME }}/${IMAGE_NAME}
           docker push ${IMAGE_NAME}
 
-      # # Stage 6: Run Tests
+      # Stage 6: Run Tests (optional, uncomment when needed)
       # - name: Run Application Tests
       #   run: |
       #     echo "Running tests..."
-      #     docker run --rm ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }} pytest tests/
+      #     docker run --rm ${IMAGE_NAME} pytest tests/
 
-      # # Stage 7: Configure Environment
+      # Stage 7: Configure Environment (optional, uncomment when needed)
       # - name: Configure Environment
       #   env:
       #     AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
