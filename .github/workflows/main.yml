@@ -54,7 +54,7 @@ jobs:
           IMAGE_NAME: "sagisen/flaskaws:0.0.0.${github.run_number}"  
         run: |
           echo "Pushing Docker image to registry..."
-          docker tag ${{ IMAGE_NAME }} ${{ secrets.DOCKER_USERNAME }}/${{ IMAGE_NAME }}
+          docker tag ${IMAGE_NAME} ${{ secrets.DOCKER_USERNAME }}/${IMAGE_NAME}
           docker push ${IMAGE_NAME}
 
       # # Stage 6: Run Tests
