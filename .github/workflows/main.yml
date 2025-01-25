@@ -45,7 +45,7 @@ jobs:
         run: |
           echo "Building Docker image..."
           echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t ${image_name} .
+          docker build -t ${IMAGE_NAME} .
 
       # Stage 5: Push Docker Image
       - name: Push Docker Image to Registry
