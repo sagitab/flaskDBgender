@@ -34,6 +34,7 @@ jobs:
         run: |
           echo "Cloning external repository..."
           git clone https://github.com/sagitab/flaskDBgender.git
+          cd flaskDBgender
 
       # Stage 4: Build Docker Image
       - name: Build Docker Image
@@ -44,7 +45,7 @@ jobs:
         run: |
           echo "Building Docker image..."
           echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t ${image_name} flaskDBgender
+          docker build -t ${image_name} .
 
       # Stage 5: Push Docker Image
       - name: Push Docker Image to Registry
