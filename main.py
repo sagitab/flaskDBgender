@@ -4,7 +4,7 @@ import mysql.connector
 import os
 import random
 from werkzeug.utils import secure_filename
-
+#check
 app = Flask(__name__)
 
 # MySQL Database Configuration
