@@ -36,7 +36,15 @@ jobs:
           git clone https://github.com/sagitab/flaskDBgender.git
           cd flaskDBgender
 
-      # Stage 4: Build Docker Image
+      # Stage 4: Configure AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1  # Replace with your AWS region if different
+
+      # Stage 5: Build Docker Image
       - name: Build Docker Image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -47,13 +55,13 @@ jobs:
           echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
           docker build -t ${IMAGE_NAME} .
 
-      # Stage 5: Install Python Dependencies
+      # Stage 6: Install Python Dependencies
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Stage 6: Run Deployment Script
+      # Stage 7: Run Deployment Script
       - name: Run Deployment Script
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
@@ -66,7 +74,7 @@ jobs:
           SSH_KEY_PATH: ${{ secrets.KEY_PATH }}
         run: python deploy.py
 
-      # Stage 7: Push Docker Image to Registry
+      # Stage 8: Push Docker Image to Registry
       - name: Push Docker Image to Registry
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
