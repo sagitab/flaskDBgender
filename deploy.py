@@ -14,10 +14,10 @@ def stop_ec2(public_ip, private_key_path, instance_id):
     ]
 
     print(f"Stopping EC2 instance with ID: {instance_id}...")
-    
+
     # Execute the command
     result = subprocess.run(ssh_command, capture_output=True, text=True)
-    
+
     if result.returncode == 0:
         print(f"EC2 instance {instance_id} stopped successfully.")
     else:
@@ -35,10 +35,10 @@ def delete_file_on_ec2(public_ip, private_key_path, file_path):
     ]
 
     print(f"Deleting file {file_path} on EC2...")
-    
+
     # Execute the command
     result = subprocess.run(ssh_command, capture_output=True, text=True)
-    
+
     if result.returncode == 0:
         print(f"File '{file_path}' deleted successfully.")
     else:
@@ -54,15 +54,16 @@ def run_script_on_ec2(public_ip, private_key_path):
         "sudo bash -c 'chmod +x /home/ec2-user/setup.sh && /home/ec2-user/setup.sh'"
     ]
     print("Running setup script on EC2 as root...")
-    
+
     # Run the command via subprocess
     result = subprocess.run(ssh_command, capture_output=True, text=True)
-    
+
     # Check if the command ran successfully
     if result.returncode == 0:
         print(f"Setup script executed successfully:\n{result.stdout}")
     else:
         print(f"Failed to execute script. Error:\n{result.stderr}")
+
 
 def file_exists_on_ec2(public_ip, private_key_path, filename):
     # Check if file exists on the EC2 instance
@@ -75,6 +76,7 @@ def file_exists_on_ec2(public_ip, private_key_path, filename):
     ]
     result = subprocess.run(check_command, capture_output=True, text=True)
     return 'exists' in result.stdout
+
 
 def create_directory_on_ec2(public_ip, private_key_path, directory):
     # Create directory on EC2 if it doesn't already exist
@@ -92,12 +94,12 @@ def create_directory_on_ec2(public_ip, private_key_path, directory):
     else:
         print(f"Failed to create directory {directory}. Error:\n{result.stderr}")
 
+
 def upload_files(public_ip, private_key_path):
     # Files to upload
     files_to_upload = [
         "setup.sh",
         "docker-compose.yml",
-        # dont includ ".env" dont exist when do git clone configure env in pipeline
     ]
     
     # First, create the db-scripts directory
@@ -108,12 +110,10 @@ def upload_files(public_ip, private_key_path):
         # Check if the file already exists on EC2
         if file_exists_on_ec2(public_ip, private_key_path, file):
             if file == "setup.sh":
-                delete_file_on_ec2(public_ip,private_key_path,"/home/ec2-user/setup.sh")
+                delete_file_on_ec2(public_ip, private_key_path, "/home/ec2-user/setup.sh")
             else:
                 print(f"{file} already exists on EC2. Skipping upload.")
                 continue
-
-            
 
         # Upload file if it doesn't exist
         upload_command = [
@@ -148,18 +148,18 @@ def upload_files(public_ip, private_key_path):
         print("init.sql uploaded successfully.")
 
 
-def run_app(public_ip,private_key_path):
-
+def run_app(public_ip, private_key_path):
     # Upload files first
     upload_files(public_ip, private_key_path)
 
     # Run the setup script on EC2 after uploading
     run_script_on_ec2(public_ip, private_key_path)
 
+
 # Specify your AWS credentials (for automatic login)
 private_key_path = os.getenv("SSH_KEY_PATH")
 aws_access_key = os.getenv("AWS_ACCESS_KEY")
-aws_secret_key = os.getenv("AWS_SECRET_KAY")
+aws_secret_key = os.getenv("AWS_SECRET_KEY")
 region = 'us-east-1'
 
 # Create a session with the credentials
@@ -183,17 +183,17 @@ def check_instance_exists():
         ]
     )
     instances = response['Reservations']
-    
+
     if instances:
         instance_state = instances[0]['Instances'][0]['State']['Name']
         instance_id = instances[0]['Instances'][0]['InstanceId']
         public_ip = instances[0]['Instances'][0].get('PublicIpAddress', 'N/A')
-        
+
         if instance_state == 'running':
             return instance_id, public_ip, 'running'
         elif instance_state == 'stopped':
             return instance_id, public_ip, 'stopped'
-    
+
     return None, None, None
 
 # Try to find an existing instance first
@@ -204,24 +204,24 @@ if instance_id:
         print(f"Instance already running. ID: {instance_id}, Public IP: {public_ip}")
     elif state == 'stopped':
         print(f"Instance is stopped. Starting it now...")
-        
+
         # Start the stopped instance
         ec2_client.start_instances(InstanceIds=[instance_id])
         ec2_client.get_waiter('instance_running').wait(InstanceIds=[instance_id])
-         # Get the public IP of the EC2 instance (after starting it)
+        # Get the public IP of the EC2 instance (after starting it)
         instance = ec2_client.describe_instances(InstanceIds=[instance_id])
         public_ip = instance['Reservations'][0]['Instances'][0].get('PublicIpAddress', 'N/A')
         print(f"EC2 instance is running at: {public_ip}")
 else:
     # If no instance exists, create a new one
     instance_params = {
-        'ImageId': 'ami-0453ec754f44f9a4a',  # V Replace with your desired AMI ID
-        'InstanceType': 't2.micro',          # V Choose instance type (e.g., 't2.micro' for the free tier)
+        'ImageId': 'ami-0453ec754f44f9a4a',  # Replace with your desired AMI ID
+        'InstanceType': 't2.micro',          # Choose instance type (e.g., 't2.micro' for the free tier)
         'MinCount': 1,
         'MaxCount': 1,
-        'KeyName': 'auto_key',                # V Replace with your EC2 key pair name
-        'SecurityGroupIds': ['sg-033cc57f4bddfbd55'],  # V Replace with your security group ID
-        'SubnetId': 'subnet-0459486efaab02d08',  # V Replace with your VPC subnet ID
+        'KeyName': 'aws_cli_key',                # Replace with your EC2 key pair name
+        'SecurityGroupIds': ['sg-033cc57f4bddfbd55'],  # Replace with your security group ID
+        'SubnetId': 'subnet-0459486efaab02d08',  # Replace with your VPC subnet ID
         'TagSpecifications': [
             {
                 'ResourceType': 'instance',
@@ -237,7 +237,7 @@ else:
 
     # Launch the EC2 instance
     response = ec2_client.run_instances(**instance_params)
-    
+
     # Get the instance ID
     instance_id = response['Instances'][0]['InstanceId']
     print(f"EC2 instance {instance_id} is being created...")
@@ -249,10 +249,9 @@ else:
     instance = ec2_client.describe_instances(InstanceIds=[instance_id])
     public_ip = instance['Reservations'][0]['Instances'][0]['PublicIpAddress']
     print(f"EC2 instance is running at: {public_ip}")
+
 time.sleep(20)
 try:
-    run_app(public_ip,private_key_path)
+    run_app(public_ip, private_key_path)
 except Exception as e:
-    print(e)
-
- 
+    print(f"Error running app: {e}")
