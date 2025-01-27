@@ -1,5 +1,5 @@
-  name: Flask CI/CD Pipeline
-#chexdsfksdf
+name: Flask CI/CD Pipeline
+#chexk
 on:
   push:
     branches:
@@ -70,10 +70,8 @@ jobs:
         run: |
           echo "Pushing Docker image to registry..."
           docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
-          docker push ${IMAGE_NAME}  
-    
-    
-    
+          docker push ${IMAGE_NAME}
+          
       - name: Launch EC2 Instance
         id: launch_ec2
         run: |
