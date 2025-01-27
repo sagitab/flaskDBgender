@@ -194,7 +194,7 @@ jobs:
               --output text)
             echo "INSTANCE_ID=${INSTANCE_ID}" >> $GITHUB_ENV
 
-- name: Wait for EC2 to Start
+      - name: Wait for EC2 to Start
         run: aws ec2 wait instance-running --instance-ids ${{ env.INSTANCE_ID }}
 
       - name: Get EC2 Public IP
