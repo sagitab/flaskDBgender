@@ -73,127 +73,127 @@ jobs:
           docker push ${IMAGE_NAME}
           
         - name: Launch EC2 Instance
-        id: launch_ec2
-        run: |
-          USER_DATA=$(cat <<EOF
-          #!/bin/bash
-          set -e
-          yum update -y
-          amazon-linux-extras enable docker
-          yum install -y docker
-          systemctl start docker
-          systemctl enable docker
-          usermod -aG docker ec2-user
-          curl -L "https://github.com/docker/compose/releases/download/v2.26.0/docker-compose-\$(uname -s)-\$(uname -m)" -o /usr/local/bin/docker-compose
-          chmod +x /usr/local/bin/docker-compose
-          ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-          mkdir -p /home/ec2-user/flaskBDgender/db-scripts
-          cd /home/ec2-user/flaskBDgender
+          id: launch_ec2
+          run: |
+            USER_DATA=$(cat <<-'EOF'
+            #!/bin/bash
+            set -e
+            yum update -y
+            amazon-linux-extras enable docker
+            yum install -y docker
+            systemctl start docker
+            systemctl enable docker
+            usermod -aG docker ec2-user
+            curl -L "https://github.com/docker/compose/releases/download/v2.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            chmod +x /usr/local/bin/docker-compose
+            ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+            mkdir -p /home/ec2-user/flaskBDgender/db-scripts
+            cd /home/ec2-user/flaskBDgender
 
-          # Write docker-compose.yml
-          cat > docker-compose.yml <<'COMPOSE'
-          version: '3.8'
-          services:
-            flask-app:
-              image: sagisen/flaskaws:0.0.0.${{ github.run_number }}
-              container_name: flask_app
-              ports:
-                - \${PORT:-5002}:\${PORT:-5002}
-              environment:
-                - FLASK_APP=main.py
-                - FLASK_ENV=development
-                - MYSQL_HOST=\${MYSQL_HOST}
-                - MYSQL_USER=\${MYSQL_USER}
-                - MYSQL_PASSWORD=\${MYSQL_PASSWORD}
-                - MYSQL_DB=\${MYSQL_DB}
-                - PORT=\${PORT:-5002}
-              depends_on:
-                mysql:
-                  condition: service_healthy
-              networks:
-                - app-network
+            # Write docker-compose.yml
+            cat > docker-compose.yml <<'COMPOSE'
+            version: '3.8'
+            services:
+              flask-app:
+                image: sagisen/flaskaws:0.0.0.${{ github.run_number }}
+                container_name: flask_app
+                ports:
+                  - ${PORT:-5002}:${PORT:-5002}
+                environment:
+                  - FLASK_APP=main.py
+                  - FLASK_ENV=development
+                  - MYSQL_HOST=${MYSQL_HOST}
+                  - MYSQL_USER=${MYSQL_USER}
+                  - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+                  - MYSQL_DB=${MYSQL_DB}
+                  - PORT=${PORT:-5002}
+                depends_on:
+                  mysql:
+                    condition: service_healthy
+                networks:
+                  - app-network
 
-            mysql:
-              image: mysql:8.0
-              container_name: mysql
-              environment:
-                MYSQL_ROOT_PASSWORD: \${MYSQL_PASSWORD}
-                MYSQL_DATABASE: \${MYSQL_DB}
-              ports:
-                - "3307:3306"
-              volumes:
-                - mysql-data:/var/lib/mysql
-                - ./db-scripts:/docker-entrypoint-initdb.d
-              networks:
-                - app-network
-              healthcheck:
-                test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-                interval: 10s
-                timeout: 5s
-                retries: 3
+              mysql:
+                image: mysql:8.0
+                container_name: mysql
+                environment:
+                  MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+                  MYSQL_DATABASE=${MYSQL_DB}
+                ports:
+                  - "3307:3306"
+                volumes:
+                  - mysql-data:/var/lib/mysql
+                  - ./db-scripts:/docker-entrypoint-initdb.d
+                networks:
+                  - app-network
+                healthcheck:
+                  test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+                  interval: 10s
+                  timeout: 5s
+                  retries: 3
 
-          volumes:
-            mysql-data:
+            volumes:
+              mysql-data:
 
-          networks:
-            app-network:
-              driver: bridge
-          COMPOSE
+            networks:
+              app-network:
+                driver: bridge
+            COMPOSE
 
-          # Write .env
-          cat > .env <<'ENV'
-          MYSQL_HOST=mysql
-          MYSQL_USER=root
-          MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
-          MYSQL_DB=mydb
-          PORT=5002
-          ENV
+            # Write .env
+            cat > .env <<'ENV'
+            MYSQL_HOST=mysql
+            MYSQL_USER=root
+            MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
+            MYSQL_DB=mydb
+            PORT=5002
+            ENV
 
-          # Write init.sql
-          cat > db-scripts/init.sql <<'SQL'
-          CREATE DATABASE IF NOT EXISTS mydb;
+            # Write init.sql
+            cat > db-scripts/init.sql <<'SQL'
+            CREATE DATABASE IF NOT EXISTS mydb;
 
-          USE mydb;
+            USE mydb;
 
-          CREATE TABLE IF NOT EXISTS `imges` (
-            `idimges` INT NOT NULL AUTO_INCREMENT,
-            `url` VARCHAR(500) NULL,
-            `name` VARCHAR(45) NULL,
-            PRIMARY KEY (`idimges`)
-          );
+            CREATE TABLE IF NOT EXISTS `imges` (
+              `idimges` INT NOT NULL AUTO_INCREMENT,
+              `url` VARCHAR(500) NULL,
+              `name` VARCHAR(45) NULL,
+              PRIMARY KEY (`idimges`)
+            );
 
-          CREATE TABLE IF NOT EXISTS `count` (
-            `idcounter` INT NOT NULL AUTO_INCREMENT,
-            `counter` INT NOT NULL,
-            PRIMARY KEY (`idcounter`)
-          );
+            CREATE TABLE IF NOT EXISTS `count` (
+              `idcounter` INT NOT NULL AUTO_INCREMENT,
+              `counter` INT NOT NULL,
+              PRIMARY KEY (`idcounter`)
+            );
 
-          INSERT INTO `count` (`counter`) VALUES (0);
+            INSERT INTO `count` (`counter`) VALUES (0);
 
-          INSERT INTO `imges` (url, name) 
-          VALUES 
-            ("https://www.chipublib.org/wp-content/uploads/sites/3/2022/09/36079964425_7b3042d5e1_k.jpg", "eminem"),
-            ("https://i.scdn.co/image/ab6761610000e5eba00b11c129b27a88fc72f36b", "eminem"),
-            ("https://ih1.redbubble.net/image.3270018746.5019/flat,750x,075,f-pad,750x1000,f8f8f8.jpg", "eminem"),
-            ("https://www.aestheticwalldecor.com/cdn/shop/files/eminem-rap-rolling-stone-magazine-wall-art-poster-aesthetic-wall-decor.jpg?v=1692556007", "eminem");
-          SQL
+            INSERT INTO `imges` (url, name) 
+            VALUES 
+              ("https://www.chipublib.org/wp-content/uploads/sites/3/2022/09/36079964425_7b3042d5e1_k.jpg", "eminem"),
+              ("https://i.scdn.co/image/ab6761610000e5eba00b11c129b27a88fc72f36b", "eminem"),
+              ("https://ih1.redbubble.net/image.3270018746.5019/flat,750x,075,f-pad,750x1000,f8f8f8.jpg", "eminem"),
+              ("https://www.aestheticwalldecor.com/cdn/shop/files/eminem-rap-rolling-stone-magazine-wall-art-poster-aesthetic-wall-decor.jpg?v=1692556007", "eminem");
+            SQL
 
-          docker-compose up -d
-          EOF
-          )
+            docker-compose up -d
+            EOF
+            )
 
-          INSTANCE_ID=$(aws ec2 run-instances \
-            --image-id ami-0c02fb55956c7d316 \
-            --count 1 \
-            --instance-type t2.micro \
-            --key-name auto_key \
-            --security-group-ids sg-033cc57f4bddfbd55 \
-            --user-data "$USER_DATA" \
-            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=FlaskApp}]' \
-            --query 'Instances[0].InstanceId' \
-            --output text)
-          echo "INSTANCE_ID=${INSTANCE_ID}" >> $GITHUB_ENV
-  
+            INSTANCE_ID=$(aws ec2 run-instances \
+              --image-id ami-0c02fb55956c7d316 \
+              --count 1 \
+              --instance-type t2.micro \
+              --key-name auto_key \
+              --security-group-ids sg-033cc57f4bddfbd55 \
+              --user-data "$USER_DATA" \
+              --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=FlaskApp}]' \
+              --query 'Instances[0].InstanceId' \
+              --output text)
+            echo "INSTANCE_ID=${INSTANCE_ID}" >> $GITHUB_ENV
+
 - name: Wait for EC2 to Start
         run: aws ec2 wait instance-running --instance-ids ${{ env.INSTANCE_ID }}
 
