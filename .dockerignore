@@ -1,0 +1,47 @@
+# Ignore Python cache files
+*.pyc
+*.pyo
+__pycache__/
+
+# Ignore virtual environments
+venv/
+env/
+
+# Ignore IDE/editor configuration files
+*.idea/
+*.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Ignore log files
+*.log
+
+# Ignore test data and results
+*.coverage
+htmlcov/
+junitxml/
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore Git files
+.git/
+.gitignore
+
+# Ignore Docker-related files (optional if not needed in the image)
+docker-compose.override.yml
+*.swp
+
+# Ignore environment and credentials files
+.env
+*.env
+*.secrets
+
+# Ignore node_modules if frontend dependencies exist
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Ignore static files not needed in the image (e.g., local uploads)
+static/uploads/
