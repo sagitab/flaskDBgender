@@ -95,18 +95,18 @@ jobs:
           version: '3.8'
           services:
             flask-app:
-              image: sagisen/flaskaws:0.0.0.${{ github.run_number }}
+              image: sagisen/flaskaws:0.0.0.25
               container_name: flask_app
               ports:
                 - ${PORT:-5002}:${PORT:-5002}
               environment:
-                - FLASK_APP=main.py
-                - FLASK_ENV=development
-                - MYSQL_HOST=${MYSQL_HOST}
-                - MYSQL_USER=${MYSQL_USER}
-                - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-                - MYSQL_DB=${MYSQL_DB}
-                - PORT=${PORT:-5002}
+                FLASK_APP: main.py
+                FLASK_ENV: development
+                MYSQL_HOST: ${MYSQL_HOST}
+                MYSQL_USER: ${MYSQL_USER}
+                MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+                MYSQL_DB: ${MYSQL_DB}
+                PORT: ${PORT:-5002}
               depends_on:
                 mysql:
                   condition: service_healthy
@@ -117,8 +117,8 @@ jobs:
               image: mysql:8.0
               container_name: mysql
               environment:
-                MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
-                MYSQL_DATABASE=${MYSQL_DB}
+                MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+                MYSQL_DATABASE: ${MYSQL_DB}
               ports:
                 - "3307:3306"
               volumes:
@@ -193,6 +193,7 @@ jobs:
             --query 'Instances[0].InstanceId' \
             --output text)
           echo "INSTANCE_ID=${INSTANCE_ID}" >> $GITHUB_ENV
+
 
       - name: Wait for EC2 to Start
         run: aws ec2 wait instance-running --instance-ids ${{ env.INSTANCE_ID }}
