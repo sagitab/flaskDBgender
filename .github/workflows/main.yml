@@ -177,6 +177,7 @@ jobs:
             ("https://ih1.redbubble.net/image.3270018746.5019/flat,750x,075,f-pad,750x1000,f8f8f8.jpg", "eminem"),
             ("https://www.aestheticwalldecor.com/cdn/shop/files/eminem-rap-rolling-stone-magazine-wall-art-poster-aesthetic-wall-decor.jpg?v=1692556007", "eminem");
           SQL
+          cd /home/ec2-user/flaskBDgender/
           docker-compose down
           docker-compose up -d
           EOF
