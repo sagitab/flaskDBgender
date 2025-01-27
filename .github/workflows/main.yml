@@ -38,8 +38,6 @@ jobs:
 
       - name: Test
         run: |
-          pwd
-          ls -a
           cat > .env <<'ENV'
           MYSQL_HOST=mysql
           MYSQL_USER=root
@@ -47,7 +45,13 @@ jobs:
           MYSQL_DB=mydb
           PORT=5002
           ENV
-          ls -a
+           yum update -y
+          yum install -y docker
+          systemctl start docker
+          systemctl enable docker
+          usermod -aG docker runner
+          curl -L "https://github.com/docker/compose/releases/download/v2.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
           docker-compose down
           docker-compose up -d
           sleep 30
