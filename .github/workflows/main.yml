@@ -89,13 +89,6 @@ jobs:
           echo "Building Docker image..."
           echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
           docker build -t ${IMAGE_NAME} .
-
-      # Stage 6: Install Python Dependencies
-      - name: Install Python Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
       # Stage 8: Push Docker Image to Registry
       - name: Push Docker Image to Registry
         env:

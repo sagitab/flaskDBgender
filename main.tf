@@ -70,7 +70,7 @@ data "aws_security_group" "existing_flask_app_sg" {
 
 # Create the security group only if it doesn't exist
 resource "aws_security_group" "flask_app_sg" {
-  count = length(data.aws_security_group.existing_flask_app_sg.ids) == 0 ? 1 : 0
+  count = data.aws_security_group.existing_flask_app_sg.id == null ? 1 : 0
 
   name        = "flask_app_sg"
   description = "Allow traffic for Flask app, MySQL, and SSH"
