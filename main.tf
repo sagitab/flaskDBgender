@@ -1,10 +1,15 @@
 provider "aws" {
   region = "us-east-1" # Replace with your desired AWS region
 }
+
 variable "mysql_password" {
   description = "The MySQL root password"
   type        = string
   sensitive   = true
+}
+
+resource "random_id" "sg_suffix" {
+  byte_length = 4
 }
 
 resource "aws_instance" "apache_server" {
@@ -14,10 +19,10 @@ resource "aws_instance" "apache_server" {
   key_name = "aws_cli_key"                   # Replace with your existing key pair name
 
   # Add a Security Group
-  vpc_security_group_ids    = [data.aws_security_group.existing_flask_app_sg.ids != [] ? data.aws_security_group.existing_flask_app_sg.id : aws_security_group.flask_app_sg[0].id]
+  vpc_security_group_ids = [aws_security_group.flask_app_sg.id]
 
   # User Data Script to Install Apache
- user_data = <<-EOF
+  user_data = <<-EOF
 #!/bin/bash
 sudo yum update -y
 # Install libxcrypt-compat
@@ -44,7 +49,6 @@ EOT
 sudo docker-compose up -d
 EOF
 
-
   tags = {
     Name = "Apache-Server"
   }
@@ -55,25 +59,10 @@ data "aws_vpc" "default" {
   default = true
 }
 
-# Check if the security group already exists in the default VPC
-data "aws_security_group" "existing_flask_app_sg" {
-  filter {
-    name   = "group-name"
-    values = ["flask_app_sg"]
-  }
-
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
-  }
-}
-
-# Create the security group only if it doesn't exist
+# Create the security group with a random suffix
 resource "aws_security_group" "flask_app_sg" {
-  count = data.aws_security_group.existing_flask_app_sg.id == null ? 1 : 0
-
-  name        = "flask_app_sg"
-  description = "Allow traffic for Flask app, MySQL, and SSH"
+  name        = "flask-app-sg-tf-${random_id.sg_suffix.hex}"
+  description = "Security group for Flask app"
   vpc_id      = data.aws_vpc.default.id
 
   # Allow HTTP traffic to the Flask application (port 5002)
@@ -106,4 +95,3 @@ output "public_ip" {
   value       = aws_instance.apache_server.public_ip
   description = "Public IP of the Apache server"
 }
-
