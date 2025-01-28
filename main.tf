@@ -16,7 +16,7 @@ resource "aws_instance" "apache_server" {
   ami           = "ami-0453ec754f44f9a4a" # Replace with an Amazon Linux 2 AMI ID for your region
   instance_type = "t2.micro"              # Free tier eligible instance type
 
-  key_name = "aws_cli_key"                   # Replace with your existing key pair name
+  key_name = "auto_key"                   # Replace with your existing key pair name
 
   # Add a Security Group
   vpc_security_group_ids = [aws_security_group.flask_app_sg.id]
