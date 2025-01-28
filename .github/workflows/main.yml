@@ -122,8 +122,10 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Terraform Plan
+       - name: Terraform Plan
         run: terraform plan
+        env:
+          TF_VAR_mysql_password: ${{ secrets.MYSQL_PASSWORD }}
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
