@@ -105,7 +105,7 @@ spec:
     spec:
       containers:
       - name: flask-app
-        image: sagisen/flaskaws:0.0.10  # Replace with your image
+        image: sagisen/flaskaws:0.0.0.45  # Replace with your image
         ports:
         - containerPort: 5002
         envFrom:
