@@ -1,0 +1,151 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secrets  # Reference the mysql-secrets Secret here
+              key: MYSQL_PASSWORD
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secrets  # Reference the mysql-secrets Secret here
+              key: MYSQL_DB
+        volumeMounts:
+        - name: mysql-initdb
+          mountPath: /docker-entrypoint-initdb.d/init.sql
+          subPath: init.sql
+      volumes:
+      - name: mysql-initdb
+        configMap:
+          name: mysql-initdb-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-initdb-config
+data:
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS mydb;
+
+    USE mydb;
+
+    CREATE TABLE IF NOT EXISTS `imges` (
+      `idimges` INT NOT NULL AUTO_INCREMENT,
+      `url` VARCHAR(500) NULL,
+      `name` VARCHAR(45) NULL,
+      PRIMARY KEY (`idimges`)
+    );
+
+    CREATE TABLE IF NOT EXISTS `count` (
+      `idcounter` INT NOT NULL AUTO_INCREMENT,
+      `counter` INT NOT NULL,
+      PRIMARY KEY (`idcounter`)
+    );
+
+    -- Insert an initial value for the counter
+    INSERT INTO `count` (`counter`) VALUES (0);
+
+    -- Insert image URLs and names
+    INSERT INTO `imges` (url, name) 
+    VALUES 
+      ("https://www.chipublib.org/wp-content/uploads/sites/3/2022/09/36079964425_7b3042d5e1_k.jpg", "eminem"),
+      ("https://i.scdn.co/image/ab6761610000e5eba00b11c129b27a88fc72f36b", "eminem"),
+      ("https://ih1.redbubble.net/image.3270018746.5019/flat,750x,075,f-pad,750x1000,f8f8f8.jpg", "eminem"),
+      ("https://www.aestheticwalldecor.com/cdn/shop/files/eminem-rap-rolling-stone-magazine-wall-art-poster-aesthetic-wall-decor.jpg?v=1692556007", "eminem");
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  clusterIP: None  # Headless service for MySQL
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app-deployment
+  labels:
+    app: flask-app
+spec:
+  replicas: 2  # Number of pod replicas
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+    spec:
+      containers:
+      - name: flask-app
+        image: sagisen/flaskaws:0.0.10  # Replace with your image
+        ports:
+        - containerPort: 5002
+        envFrom:
+        - secretRef:
+            name: mysql-secrets  # Reference the mysql-secrets Secret here
+        env:
+        - name: MYSQL_HOST
+          value: "mysql-service"  # MySQL service name
+        - name: PORT
+          value: "5002"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flask-app-config
+  labels:
+    app: flask-app
+data:
+  # No sensitive data, as we're using secrets now
+  PORT: "5002"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-app-service
+spec:
+  selector:
+    app: flask-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5002
+  type: LoadBalancer  # Use LoadBalancer to expose the service externally
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secrets
+type: Opaque
+data:
+  MYSQL_PASSWORD: RGF0YUxDMjM=  
+  MYSQL_USER: cm9vdA==        
+  MYSQL_DB: bXlkYg==          
