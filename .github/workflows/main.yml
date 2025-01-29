@@ -35,7 +35,26 @@ jobs:
           echo "Cloning external repository..."
           git clone https://github.com/sagitab/flaskDBgender.git
           cd flaskDBgender
-
+# Stage 5: Build Docker Image
+      - name: Build Docker Image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          IMAGE_NAME: "sagisen/flaskaws:0.0.0.${{ github.run_number }}"
+        run: |
+          echo "Building Docker image..."
+          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+          docker build -t ${IMAGE_NAME} .
+      # Stage 8: Push Docker Image to Registry
+      - name: Push Docker Image to Registry
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          IMAGE_NAME: "sagisen/flaskaws:0.0.0.${{ github.run_number }}"
+        run: |
+          echo "Pushing Docker image to registry..."
+          docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
+          docker push ${IMAGE_NAME}
 
       - name: Test
         run: |
@@ -46,6 +65,7 @@ jobs:
           MYSQL_DB=mydb
           PORT=5002
           ENV
+          GITHUB_RUN_NUMBER=${{ github.run_number }}
           PREV_BUILD=$((GITHUB_RUN_NUMBER - 1))
           sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml
 
@@ -82,26 +102,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-east-1  # Replace with your AWS region if different
 
-      # Stage 5: Build Docker Image
-      - name: Build Docker Image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          IMAGE_NAME: "sagisen/flaskaws:0.0.0.${{ github.run_number }}"
-        run: |
-          echo "Building Docker image..."
-          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t ${IMAGE_NAME} .
-      # Stage 8: Push Docker Image to Registry
-      - name: Push Docker Image to Registry
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          IMAGE_NAME: "sagisen/flaskaws:0.0.0.${{ github.run_number }}"
-        run: |
-          echo "Pushing Docker image to registry..."
-          docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
-          docker push ${IMAGE_NAME}
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
         with:
