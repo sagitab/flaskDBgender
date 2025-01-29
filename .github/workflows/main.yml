@@ -122,11 +122,13 @@ jobs:
         run: terraform plan
         env:
           TF_VAR_mysql_password: ${{ secrets.MYSQL_PASSWORD }}
+          TF_VAR_build_number: ${{ github.run_number }}
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
         env:
           TF_VAR_mysql_password: ${{ secrets.SQL_PASS }}  # Pass MySQL password securely using GitHub secrets
+          TF_VAR_build_number: ${{ github.run_number }}
           
       # - name: Launch EC2 Instance
       #   id: launch_ec2

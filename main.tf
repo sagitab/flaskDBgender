@@ -7,6 +7,11 @@ variable "mysql_password" {
   type        = string
   sensitive   = true
 }
+variable "build_number" {
+  description = "The build github action number"
+  type        = number
+}
+
 
 resource "random_id" "sg_suffix" {
   byte_length = 4
@@ -46,6 +51,9 @@ MYSQL_PASSWORD=${var.mysql_password}
 MYSQL_DB=mydb
 PORT=5002
 EOT
+GITHUB_RUN_NUMBER=${var.build_number}
+PREV_BUILD=47
+sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml
 sudo docker-compose up -d
 EOF
 
