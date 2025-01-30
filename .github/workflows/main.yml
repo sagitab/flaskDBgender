@@ -109,22 +109,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install google-cloud-sdk
 
-      - name: Verify architecture
-        run: uname -m
-
-
       # Manually install the gke-gcloud-auth-plugin
       - name: Install gke-gcloud-auth-plugin
         run: |
-          ARCH=$(uname -m)
-          if [ "$ARCH" == "x86_64" ]; then
-            curl -sSL https://github.com/google-cloud-sdk/gke-gcloud-auth-plugin/releases/latest/download/gke-gcloud-auth-plugin-linux-amd64 -o /usr/local/bin/gke-gcloud-auth-plugin
-          elif [ "$ARCH" == "aarch64" ]; then
-            curl -sSL https://github.com/google-cloud-sdk/gke-gcloud-auth-plugin/releases/latest/download/gke-gcloud-auth-plugin-linux-arm64 -o /usr/local/bin/gke-gcloud-auth-plugin
-          else
-            echo "Unsupported architecture: $ARCH"
-            exit 1
-          fi
+          pwd
+          ls
+          curl -v -sSL https://github.com/google-cloud-sdk/gke-gcloud-auth-plugin/releases/latest/download/gke-gcloud-auth-plugin-linux-amd64 -o /usr/local/bin/gke-gcloud-auth-plugin
           sudo chmod +x /usr/local/bin/gke-gcloud-auth-plugin
 
       - name: Check gke-gcloud-auth-plugin installation
@@ -132,21 +122,21 @@ jobs:
           file /usr/local/bin/gke-gcloud-auth-plugin
           ls -l /usr/local/bin/gke-gcloud-auth-plugin
 
-      - name: Reinstall gke-gcloud-auth-plugin
-        run: |
-          sudo rm -f /usr/local/bin/gke-gcloud-auth-plugin
-          ARCH=$(uname -m)
-          if [ "$ARCH" == "x86_64" ]; then
-            curl -sSL https://github.com/google-cloud-sdk/gke-gcloud-auth-plugin/releases/latest/download/gke-gcloud-auth-plugin-linux-amd64 -o /usr/local/bin/gke-gcloud-auth-plugin
-          elif [ "$ARCH" == "aarch64" ]; then
-            curl -sSL https://github.com/google-cloud-sdk/gke-gcloud-auth-plugin/releases/latest/download/gke-gcloud-auth-plugin-linux-arm64 -o /usr/local/bin/gke-gcloud-auth-plugin
-          else
-            echo "Unsupported architecture: $ARCH"
-            exit 1
-          fi
-          sudo chmod +x /usr/local/bin/gke-gcloud-auth-plugin
-          file /usr/local/bin/gke-gcloud-auth-plugin
-          ls -l /usr/local/bin/gke-gcloud-auth-plugin
+      # - name: Reinstall gke-gcloud-auth-plugin
+      #   run: |
+      #     sudo rm -f /usr/local/bin/gke-gcloud-auth-plugin
+      #     ARCH=$(uname -m)
+      #     if [ "$ARCH" == "x86_64" ]; then
+      #       curl -sSL https://github.com/google-cloud-sdk/gke-gcloud-auth-plugin/releases/latest/download/gke-gcloud-auth-plugin-linux-amd64 -o /usr/local/bin/gke-gcloud-auth-plugin
+      #     elif [ "$ARCH" == "aarch64" ]; then
+      #       curl -sSL https://github.com/google-cloud-sdk/gke-gcloud-auth-plugin/releases/latest/download/gke-gcloud-auth-plugin-linux-arm64 -o /usr/local/bin/gke-gcloud-auth-plugin
+      #     else
+      #       echo "Unsupported architecture: $ARCH"
+      #       exit 1
+      #     fi
+      #     sudo chmod +x /usr/local/bin/gke-gcloud-auth-plugin
+      #     file /usr/local/bin/gke-gcloud-auth-plugin
+      #     ls -l /usr/local/bin/gke-gcloud-auth-plugin
 
       - name: Test gke-gcloud-auth-plugin execution
         run: |
