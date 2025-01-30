@@ -102,7 +102,7 @@ jobs:
 
       - name: Set up kubectl
         run: |
-          gcloud container clusters get-credentials cluster --region us-central1 
+          gcloud container clusters get-credentials cluster-1 --region us-central1 
           kubectl get nodes  # Verify connection
 
       - name: Deploy to GKE
