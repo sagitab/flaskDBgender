@@ -35,7 +35,8 @@ jobs:
           echo "Cloning external repository..."
           git clone https://github.com/sagitab/flaskDBgender.git
           cd flaskDBgender
-# Stage 5: Build Docker Image
+
+      # Stage 5: Build Docker Image
       - name: Build Docker Image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -45,6 +46,7 @@ jobs:
           echo "Building Docker image..."
           echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
           docker build -t ${IMAGE_NAME} .
+
       # Stage 8: Push Docker Image to Registry
       - name: Push Docker Image to Registry
         env:
@@ -93,10 +95,10 @@ jobs:
           echo "Flask app failed to respond after $max_attempts attempts."
           exit 1
 
-     - name: Authenticate with Google Cloud
-       uses: google-github-actions/auth@v0
-       with:
-        credentials_json: ${{ secrets.GCLOUD_KEY }}
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCLOUD_KEY }}
 
       - name: Set up kubectl
         run: |
@@ -105,6 +107,7 @@ jobs:
 
       - name: Deploy to GKE
         run: kubectl apply -f k8s.yaml  # Apply the Kubernetes configuration (k8s.yaml)
+
 
 
       # # Stage 4: Configure AWS Credentials
