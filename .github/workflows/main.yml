@@ -58,42 +58,42 @@ jobs:
           docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
           docker push ${IMAGE_NAME}
 
-      # - name: Test
-      #   run: |
-      #     cat > .env << "ENV"  # Double quotes for expansion
-      #     MYSQL_HOST=mysql
-      #     MYSQL_USER=root
-      #     MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
-      #     MYSQL_DB=mydb
-      #     PORT=5002
-      #     ENV
-      #     GITHUB_RUN_NUMBER=${{ github.run_number }}
-      #     PREV_BUILD=47
-      #     sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml  # Double quotes for expansion
+      - name: Test
+        run: |
+          cat > .env << "ENV"  # Double quotes for expansion
+          MYSQL_HOST=mysql
+          MYSQL_USER=root
+          MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
+          MYSQL_DB=mydb
+          PORT=5002
+          ENV
+          GITHUB_RUN_NUMBER=${{ github.run_number }}
+          PREV_BUILD=47
+          sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml  # Double quotes for expansion
 
-      #     ls
-      #     docker images
-      #     docker compose up -d  # Ensure Docker Compose V2 is used
-      #     sleep 1
-      #     docker compose ps
-      #     sleep 30
-      #     i=0
-      #     max_attempts=5
+          ls
+          docker images
+          docker compose up -d  # Ensure Docker Compose V2 is used
+          sleep 1
+          docker compose ps
+          sleep 30
+          i=0
+          max_attempts=5
           
-      #     while [ $i -lt $max_attempts ]; do
-      #       echo "Attempt $((i + 1)) of $max_attempts..."
-      #       if curl -sSf http://localhost:5002 > /dev/null; then
-      #         echo "Flask app is reachable."
-      #         exit 0
-      #       else
-      #         echo "Flask app is not reachable. Retrying in 5 seconds..."
-      #         sleep 5
-      #         i=$((i + 1))
-      #       fi
-      #     done
+          while [ $i -lt $max_attempts ]; do
+            echo "Attempt $((i + 1)) of $max_attempts..."
+            if curl -sSf http://localhost:5002 > /dev/null; then
+              echo "Flask app is reachable."
+              exit 0
+            else
+              echo "Flask app is not reachable. Retrying in 5 seconds..."
+              sleep 5
+              i=$((i + 1))
+            fi
+          done
 
-      #     echo "Flask app failed to respond after $max_attempts attempts."
-      #     exit 1
+          echo "Flask app failed to respond after $max_attempts attempts."
+          exit 1
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
@@ -109,55 +109,21 @@ jobs:
           sudo apt-get update
           sudo apt-get install google-cloud-sdk
 
-      # # Manually install the gke-gcloud-auth-plugin
-      # - name: Install gke-gcloud-auth-plugin
-      #   run: |
-      #     pwd
-      #     ls
-      #     curl -v -sSL https://github.com/google-cloud-sdk/gke-gcloud-auth-plugin/releases/latest/download/gke-gcloud-auth-plugin-linux-amd64 -o /usr/local/bin/gke-gcloud-auth-plugin
-      #     sudo chmod +x /usr/local/bin/gke-gcloud-auth-plugin
-
-         # Manually install the gke-gcloud-auth-plugin
       - name: Install gke-gcloud-auth-plugin
         run: |
           sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
           gke-gcloud-auth-plugin --version
 
-      # - name: Check gke-gcloud-auth-plugin installation
-      #   run: |
-      #     file /usr/local/bin/gke-gcloud-auth-plugin
-      #     ls -l /usr/local/bin/gke-gcloud-auth-plugin
-      #     /usr/local/bin/gke-gcloud-auth-plugin --help
-
-          
       - name: Set up kubectl
         run: |
+          GITHUB_RUN_NUMBER=${{ github.run_number }}
+          PREV_BUILD=45
+          sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" k8s.yaml  # Double quotes for expansion
           gcloud container clusters get-credentials cluster-1 --region us-central1 
           kubectl get nodes  # Verify connection
 
       - name: Deploy to GKE
         run: kubectl apply -f k8s.yaml  # Apply the Kubernetes configuration (k8s.yaml)
-
-    # - name: Reinstall gke-gcloud-auth-plugin
-      #   run: |
-      #     sudo rm -f /usr/local/bin/gke-gcloud-auth-plugin
-      #     ARCH=$(uname -m)
-      #     if [ "$ARCH" == "x86_64" ]; then
-      #       curl -sSL https://github.com/google-cloud-sdk/gke-gcloud-auth-plugin/releases/latest/download/gke-gcloud-auth-plugin-linux-amd64 -o /usr/local/bin/gke-gcloud-auth-plugin
-      #     elif [ "$ARCH" == "aarch64" ]; then
-      #       curl -sSL https://github.com/google-cloud-sdk/gke-gcloud-auth-plugin/releases/latest/download/gke-gcloud-auth-plugin-linux-arm64 -o /usr/local/bin/gke-gcloud-auth-plugin
-      #     else
-      #       echo "Unsupported architecture: $ARCH"
-      #       exit 1
-      #     fi
-      #     sudo chmod +x /usr/local/bin/gke-gcloud-auth-plugin
-      #     file /usr/local/bin/gke-gcloud-auth-plugin
-      #     ls -l /usr/local/bin/gke-gcloud-auth-plugin
-
-
-
-
-
 
 
 
