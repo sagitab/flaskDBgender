@@ -100,9 +100,20 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCLOUD_KEY }}
 
+           # Install Google Cloud SDK
+      - name: Install Google Cloud SDK
+        run: |
+          echo "Installing Google Cloud SDK..."
+          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+          echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          sudo apt-get update
+          sudo apt-get install google-cloud-sdk
+
+      # Manually install the gke-gcloud-auth-plugin
       - name: Install gke-gcloud-auth-plugin
         run: |
-          sudo apt-get install google-cloud-cli-gke-gcloud-auth-plugin
+          curl -sSL https://github.com/google-cloud-sdk/gke-gcloud-auth-plugin/releases/latest/download/gke-gcloud-auth-plugin-linux-amd64 -o /usr/local/bin/gke-gcloud-auth-plugin
+          sudo chmod +x /usr/local/bin/gke-gcloud-auth-plugin
 
 
       - name: Set up kubectl
