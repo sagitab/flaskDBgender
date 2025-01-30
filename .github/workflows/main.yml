@@ -58,7 +58,7 @@ jobs:
 
       - name: Test
         run: |
-          cat > .env <<'ENV'
+          cat > .env << "ENV"  # Double quotes for expansion
           MYSQL_HOST=mysql
           MYSQL_USER=root
           MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
@@ -67,36 +67,36 @@ jobs:
           ENV
           GITHUB_RUN_NUMBER=${{ github.run_number }}
           PREV_BUILD=47
-          sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml
+          sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml  # Double quotes for expansion
 
           ls
           docker images
-          docker compose up -d
+          docker compose up -d  # Ensure Docker Compose V2 is used
           sleep 1
           docker compose ps
           sleep 30
           i=0
           max_attempts=5
-      
+          
           while [ $i -lt $max_attempts ]; do
             echo "Attempt $((i + 1)) of $max_attempts..."
             if curl -sSf http://localhost:5002 > /dev/null; then
               echo "Flask app is reachable."
-              exit 0  # Success, exit the script
+              exit 0
             else
               echo "Flask app is not reachable. Retrying in 5 seconds..."
               sleep 5
               i=$((i + 1))
             fi
           done
-      
-          echo "Flask app failed to respond after $max_attempts attempts."
-          exit 1  # Failure, exit with non-zero status
 
+          echo "Flask app failed to respond after $max_attempts attempts."
+          exit 1
+          
      - name: Authenticate with Google Cloud
        uses: google-github-actions/auth@v0
        with:
-          credentials_json: ${{ secrets.GCLOUD_KEY }}
+        credentials_json: ${{ secrets.GCLOUD_KEY }}
 
       - name: Set up kubectl
         run: |
