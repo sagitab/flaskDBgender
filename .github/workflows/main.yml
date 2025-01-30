@@ -93,42 +93,55 @@ jobs:
           echo "Flask app failed to respond after $max_attempts attempts."
           exit 1  # Failure, exit with non-zero status
 
+     - name: Authenticate with Google Cloud
+       uses: google-github-actions/auth@v0
+       with:
+          credentials_json: ${{ secrets.GCLOUD_KEY }}
 
-      # Stage 4: Configure AWS Credentials
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: us-east-1  # Replace with your AWS region if different
+      - name: Set up kubectl
+        run: |
+          gcloud container clusters get-credentials cluster --region us-central1 
+          kubectl get nodes  # Verify connection
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.10.4  # Specify your desired Terraform version
+      - name: Deploy to GKE
+        run: kubectl apply -f k8s.yaml  # Apply the Kubernetes configuration (k8s.yaml)
 
-      - name: Cache Terraform providers
-        uses: actions/cache@v2
-        with:
-          path: ~/.terraform.d/plugin-cache
-          key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
-          restore-keys: |
-            ${{ runner.os }}-terraform-
 
-      - name: Terraform Init
-        run: terraform init
+      # # Stage 4: Configure AWS Credentials
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v3
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+      #     aws-region: us-east-1  # Replace with your AWS region if different
 
-      - name: Terraform Plan
-        run: terraform plan
-        env:
-          TF_VAR_mysql_password: ${{ secrets.MYSQL_PASSWORD }}
-          TF_VAR_build_number: ${{ github.run_number }}
+      # - name: Set up Terraform
+      #   uses: hashicorp/setup-terraform@v2
+      #   with:
+      #     terraform_version: 1.10.4  # Specify your desired Terraform version
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
-        env:
-          TF_VAR_mysql_password: ${{ secrets.SQL_PASS }}  # Pass MySQL password securely using GitHub secrets
-          TF_VAR_build_number: ${{ github.run_number }}
+      # - name: Cache Terraform providers
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.terraform.d/plugin-cache
+      #     key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-terraform-
+
+      # - name: Terraform Init
+      #   run: terraform init
+
+      # - name: Terraform Plan
+      #   run: terraform plan
+      #   env:
+      #     TF_VAR_mysql_password: ${{ secrets.MYSQL_PASSWORD }}
+      #     TF_VAR_build_number: ${{ github.run_number }}
+
+      # - name: Terraform Apply
+      #   run: terraform apply -auto-approve
+      #   env:
+      #     TF_VAR_mysql_password: ${{ secrets.SQL_PASS }}  # Pass MySQL password securely using GitHub secrets
+      #     TF_VAR_build_number: ${{ github.run_number }}
           
       # - name: Launch EC2 Instance
       #   id: launch_ec2
