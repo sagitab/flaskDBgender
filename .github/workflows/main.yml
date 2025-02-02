@@ -135,8 +135,8 @@ jobs:
       #     aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
       #     aws-region: us-east-1  # Replace with your AWS region if different
       #apply to the user premisions
-     - name: Grant IAM service account user role
-       run: |
+      - name: Grant IAM service account user role
+        run: |
           gcloud iam service-accounts add-iam-policy-binding 970480484828-compute@developer.gserviceaccount.com \
             --member="user:sagilavy01@gmail.com" \
             --role="roles/iam.serviceAccountUser" \
