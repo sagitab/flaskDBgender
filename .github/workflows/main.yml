@@ -100,19 +100,19 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCLOUD_KEY }}
 
-      #      # Install Google Cloud SDK
-      # - name: Install Google Cloud SDK
-      #   run: |
-      #     echo "Installing Google Cloud SDK..."
-      #     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-      #     echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-      #     sudo apt-get update
-      #     sudo apt-get install google-cloud-sdk
+           # Install Google Cloud SDK
+      - name: Install Google Cloud SDK
+        run: |
+          echo "Installing Google Cloud SDK..."
+          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+          echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          sudo apt-get update
+          sudo apt-get install google-cloud-sdk
 
-      # - name: Install gke-gcloud-auth-plugin
-      #   run: |
-      #     sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
-      #     gke-gcloud-auth-plugin --version
+      - name: Install gke-gcloud-auth-plugin
+        run: |
+          sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
+          gke-gcloud-auth-plugin --version
 
       # - name: Set up kubectl
       #   run: |
@@ -135,6 +135,12 @@ jobs:
       #     aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
       #     aws-region: us-east-1  # Replace with your AWS region if different
       #apply to the user premisions
+      - name: Grant IAM service account user role
+        run: |
+          gcloud iam service-accounts add-iam-policy-binding 970480484828-compute@developer.gserviceaccount.com \
+            --member="user:sagilavy01@gmail.com" \
+            --role="roles/iam.serviceAccountUser" \
+            --project="tactile-visitor-449316-h6"
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
         with:
