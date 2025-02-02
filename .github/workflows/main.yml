@@ -148,18 +148,18 @@ jobs:
         run: |
           gcloud auth list
       #apply to the user premisions
-      - name: Grant IAM service account user role
+      - name: Grant IAM service account user role to GitHub Actions
         run: |
           gcloud iam service-accounts add-iam-policy-binding 970480484828-compute@developer.gserviceaccount.com \
-            --member="user:sagilavy01@gmail.com" \
+            --member="serviceAccount:github-actions@tactile-visitor-449316-h6.iam.gserviceaccount.com" \
             --role="roles/iam.serviceAccountUser" \
             --project="tactile-visitor-449316-h6"
-       #apply to the user premisions
-      - name: Grant IAM service account user role
+
+      - name: Grant container admin role to GitHub Actions
         run: |
-         gcloud projects add-iam-policy-binding tactile-visitor-449316-h6 \
-          --member="serviceAccount:github-actions@tactile-visitor-449316-h6.iam.gserviceaccount.com" \
-          --role="roles/container.admin"
+          gcloud projects add-iam-policy-binding tactile-visitor-449316-h6 \
+            --member="serviceAccount:github-actions@tactile-visitor-449316-h6.iam.gserviceaccount.com" \
+            --role="roles/container.admin"
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
