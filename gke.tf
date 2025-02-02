@@ -7,7 +7,8 @@ resource "google_container_cluster" "primary" {
   name     = "gke-cluster"
   location = "us-central1"
 
-  remove_default_node_pool = true  # Required when defining a custom node pool
+  remove_default_node_pool = true
+  initial_node_count       = 1  # ✅ Required, even though it's removed immediately
 }
 
 resource "google_container_node_pool" "primary_nodes" {
