@@ -100,30 +100,30 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCLOUD_KEY }}
 
-           # Install Google Cloud SDK
-      - name: Install Google Cloud SDK
-        run: |
-          echo "Installing Google Cloud SDK..."
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-          echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          sudo apt-get update
-          sudo apt-get install google-cloud-sdk
+      #      # Install Google Cloud SDK
+      # - name: Install Google Cloud SDK
+      #   run: |
+      #     echo "Installing Google Cloud SDK..."
+      #     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+      #     echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+      #     sudo apt-get update
+      #     sudo apt-get install google-cloud-sdk
 
-      - name: Install gke-gcloud-auth-plugin
-        run: |
-          sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
-          gke-gcloud-auth-plugin --version
+      # - name: Install gke-gcloud-auth-plugin
+      #   run: |
+      #     sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
+      #     gke-gcloud-auth-plugin --version
 
-      - name: Set up kubectl
-        run: |
-          GITHUB_RUN_NUMBER=${{ github.run_number }}
-          PREV_BUILD=45
-          sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" k8s.yaml  # Double quotes for expansion
-          gcloud container clusters get-credentials cluster-1 --region us-central1 
-          kubectl get nodes  # Verify connection
+      # - name: Set up kubectl
+      #   run: |
+      #     GITHUB_RUN_NUMBER=${{ github.run_number }}
+      #     PREV_BUILD=45
+      #     sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" k8s.yaml  # Double quotes for expansion
+      #     gcloud container clusters get-credentials cluster-1 --region us-central1 
+      #     kubectl get nodes  # Verify connection
 
-      - name: Deploy to GKE
-        run: kubectl apply -f k8s.yaml  # Apply the Kubernetes configuration (k8s.yaml)
+      # - name: Deploy to GKE
+      #   run: kubectl apply -f k8s.yaml  # Apply the Kubernetes configuration (k8s.yaml)
 
 
 
@@ -135,33 +135,33 @@ jobs:
       #     aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
       #     aws-region: us-east-1  # Replace with your AWS region if different
 
-      # - name: Set up Terraform
-      #   uses: hashicorp/setup-terraform@v2
-      #   with:
-      #     terraform_version: 1.10.4  # Specify your desired Terraform version
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.10.4  # Specify your desired Terraform version
 
-      # - name: Cache Terraform providers
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: ~/.terraform.d/plugin-cache
-      #     key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-terraform-
+      - name: Cache Terraform providers
+        uses: actions/cache@v2
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
 
-      # - name: Terraform Init
-      #   run: terraform init
+      - name: Terraform Init
+        run: terraform init
 
-      # - name: Terraform Plan
-      #   run: terraform plan
-      #   env:
-      #     TF_VAR_mysql_password: ${{ secrets.MYSQL_PASSWORD }}
-      #     TF_VAR_build_number: ${{ github.run_number }}
+      - name: Terraform Plan
+        run: terraform plan
+        env:
+          TF_VAR_mysql_password: ${{ secrets.MYSQL_PASSWORD }}
+          TF_VAR_build_number: ${{ github.run_number }}
 
-      # - name: Terraform Apply
-      #   run: terraform apply -auto-approve
-      #   env:
-      #     TF_VAR_mysql_password: ${{ secrets.SQL_PASS }}  # Pass MySQL password securely using GitHub secrets
-      #     TF_VAR_build_number: ${{ github.run_number }}
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        env:
+          TF_VAR_mysql_password: ${{ secrets.SQL_PASS }}  # Pass MySQL password securely using GitHub secrets
+          TF_VAR_build_number: ${{ github.run_number }}
           
       # - name: Launch EC2 Instance
       #   id: launch_ec2
