@@ -8,3 +8,33 @@ node_modules/
 .env
 venv/
 __pycache__/
+
+# Terraform state files
+*.tfstate
+*.tfstate.backup
+
+# Terraform configuration and override files
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+terraform.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Crash logs
+crash.log
+
+# Sensitive files (add more if needed)
+*.pem
+*.key
+*.crt
+*.p12
+
+# Ignore Terraform plan output files
+*.tfplan
+
+# Ignore Terraform debug logs
+.terraformrc
+terraform.rc
