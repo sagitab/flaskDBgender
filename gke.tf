@@ -1,11 +1,11 @@
 provider "google" {
   project = "tactile-visitor-449316-h6"
-  region  = "us-central1"
+  region  = "us-east1"
 }
 
 resource "google_container_cluster" "primary" {
   name     = "gke-cluster"
-  location = "us-central1"
+  location = "us-east1"
 
   remove_default_node_pool = true
   initial_node_count       = 1  # ✅ Required, even though it's removed immediately
