@@ -99,6 +99,14 @@ jobs:
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCLOUD_KEY }}
+          #try another auth
+      - name: Authenticate with GCP
+        run: |
+          gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+          gcloud auth list
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /home/runner/work/flaskDBgender/flaskDBgender/gha-creds-4d5e94123833ba5a.json
+
 
            # Install Google Cloud SDK
       - name: Install Google Cloud SDK
