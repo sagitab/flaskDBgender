@@ -17,8 +17,9 @@ resource "google_container_node_pool" "primary_nodes" {
   location   = google_container_cluster.primary.location
   node_count = 2
 
-  node_config {
+   node_config {
     machine_type = "e2-medium"
+    disk_size_gb = 50  # 🔹 Reduce disk size to fit within quota
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform",
     ]
