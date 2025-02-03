@@ -39,3 +39,4 @@ crash.log
 .terraformrc
 terraform.rc
 delete_images.sh
+static/

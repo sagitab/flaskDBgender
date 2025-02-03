@@ -61,7 +61,7 @@ jobs:
       - name: delete
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
         run: |
           curl -X DELETE -u "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" \
           "https://hub.docker.com/v2/repositories/sagisen/flaskaws/tags/0.0.0.24/"
