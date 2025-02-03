@@ -60,13 +60,15 @@ jobs:
 
       - name: Install hub-tool
         run: |
-          curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-hub-tool.tgz -o hub-tool.tgz
-          tar -xzf hub-tool.tgz
+          HUB_TOOL_VERSION=0.4.6  # Update to the latest version
+          curl -L -o hub-tool.tar.gz "https://github.com/docker/hub-tool/releases/download/v$HUB_TOOL_VERSION/hub-tool-linux-amd64.tar.gz"
+          tar -xzf hub-tool.tar.gz
           chmod +x hub-tool
-          sudo mv hub-tool /usr/local/bin/hub-tool  # Move it to PATH
+          sudo mv hub-tool /usr/local/bin/hub-tool  # Move to PATH
           export PATH=$PATH:/usr/local/bin
-          which hub-tool  # Debugging: Check if hub-tool is installed
+          which hub-tool  # Debugging: Confirm it's in PATH
           hub-tool --version  # Verify installation
+
 
 
       - name: Login to Docker Hub
