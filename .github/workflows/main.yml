@@ -166,67 +166,67 @@ jobs:
       #       --member="serviceAccount:github-actions@tactile-visitor-449316-h6.iam.gserviceaccount.com" \
       #       --role="roles/container.admin"
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.10.4  # Specify your desired Terraform version
+      # - name: Set up Terraform
+      #   uses: hashicorp/setup-terraform@v2
+      #   with:
+      #     terraform_version: 1.10.4  # Specify your desired Terraform version
 
-      - name: Cache Terraform providers
-        uses: actions/cache@v2
-        with:
-          path: ~/.terraform.d/plugin-cache
-          key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
-          restore-keys: |
-            ${{ runner.os }}-terraform-
+      # - name: Cache Terraform providers
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.terraform.d/plugin-cache
+      #     key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-terraform-
 
-      - name: Terraform Init
-        run: terraform init
+      # - name: Terraform Init
+      #   run: terraform init
 
-      - name: Terraform Plan
-        run: terraform plan
-        env:
-          TF_VAR_mysql_password: ${{ secrets.MYSQL_PASSWORD }}
-          TF_VAR_build_number: ${{ github.run_number }}
+      # - name: Terraform Plan
+      #   run: terraform plan
+      #   env:
+      #     TF_VAR_mysql_password: ${{ secrets.MYSQL_PASSWORD }}
+      #     TF_VAR_build_number: ${{ github.run_number }}
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
-        env:
-          TF_VAR_mysql_password: ${{ secrets.SQL_PASS }}  # Pass MySQL password securely using GitHub secrets
-          TF_VAR_build_number: ${{ github.run_number }}
+      # - name: Terraform Apply
+      #   run: terraform apply -auto-approve
+      #   env:
+      #     TF_VAR_mysql_password: ${{ secrets.SQL_PASS }}  # Pass MySQL password securely using GitHub secrets
+      #     TF_VAR_build_number: ${{ github.run_number }}
       
-      - name: Set up kubectl
-        run: |
-          GITHUB_RUN_NUMBER=${{ github.run_number }}
-          PREV_BUILD=45
-          sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" k8s.yaml  # Double quotes for expansion
+      # - name: Set up kubectl
+      #   run: |
+      #     GITHUB_RUN_NUMBER=${{ github.run_number }}
+      #     PREV_BUILD=45
+      #     sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" k8s.yaml  # Double quotes for expansion
           
-          # Retry mechanism for getting GKE credentials
-          MAX_RETRIES=5
-          RETRY_COUNT=0
+      #     # Retry mechanism for getting GKE credentials
+      #     MAX_RETRIES=5
+      #     RETRY_COUNT=0
 
-          while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
-            echo "Attempt $((RETRY_COUNT+1)) to get GKE credentials..."
+      #     while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
+      #       echo "Attempt $((RETRY_COUNT+1)) to get GKE credentials..."
             
-            if gcloud container clusters get-credentials gke-cluster --region us-east1; then
-              echo "✅ Successfully got GKE credentials."
-              break
-            else
-              echo "❌ Failed to get GKE credentials. Retrying in 10 seconds..."
-              RETRY_COUNT=$((RETRY_COUNT+1))
-              sleep 10
-            fi
-          done
+      #       if gcloud container clusters get-credentials gke-cluster --region us-east1; then
+      #         echo "✅ Successfully got GKE credentials."
+      #         break
+      #       else
+      #         echo "❌ Failed to get GKE credentials. Retrying in 10 seconds..."
+      #         RETRY_COUNT=$((RETRY_COUNT+1))
+      #         sleep 10
+      #       fi
+      #     done
 
-          # If we exhausted all retries, fail the pipeline
-          if [[ $RETRY_COUNT -eq $MAX_RETRIES ]]; then
-            echo "🚨 ERROR: Reached max retries ($MAX_RETRIES). Failing pipeline."
-            exit 1
-          fi
+      #     # If we exhausted all retries, fail the pipeline
+      #     if [[ $RETRY_COUNT -eq $MAX_RETRIES ]]; then
+      #       echo "🚨 ERROR: Reached max retries ($MAX_RETRIES). Failing pipeline."
+      #       exit 1
+      #     fi
 
-          kubectl get nodes  # Verify connection
+      #     kubectl get nodes  # Verify connection
 
-      - name: Deploy to GKE
-        run: kubectl apply -f k8s.yaml  # Apply the Kubernetes configuration (k8s.yaml)
+      # - name: Deploy to GKE
+      #   run: kubectl apply -f k8s.yaml  # Apply the Kubernetes configuration (k8s.yaml)
           
       # - name: Launch EC2 Instance
       #   id: launch_ec2
