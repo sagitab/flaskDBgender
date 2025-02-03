@@ -60,14 +60,25 @@ jobs:
 
       - name: Install hub-tool
         run: |
-          HUB_TOOL_VERSION=0.4.6  # Update to the latest version
-          curl -L -o hub-tool.tar.gz "https://github.com/docker/hub-tool/releases/download/v$HUB_TOOL_VERSION/hub-tool-linux-amd64.tar.gz"
-          tar -xzf hub-tool.tar.gz
-          chmod +x hub-tool
-          sudo mv hub-tool /usr/local/bin/hub-tool  # Move to PATH
-          export PATH=$PATH:/usr/local/bin
-          which hub-tool  # Debugging: Confirm it's in PATH
-          hub-tool --version  # Verify installation
+          set -e  # Exit on any error
+          HUB_TOOL_VERSION=0.4.6  # Latest version
+          DOWNLOAD_URL="https://github.com/docker/hub-tool/releases/download/v$HUB_TOOL_VERSION/hub-tool-linux-amd64.tar.gz"
+
+          echo "Downloading hub-tool from: $DOWNLOAD_URL"
+          curl -L -o hub-tool.tar.gz "$DOWNLOAD_URL" || { echo "❌ Failed to download hub-tool"; exit 1; }
+
+          echo "Extracting hub-tool..."
+          tar -xzf hub-tool.tar.gz || { echo "❌ Extraction failed"; exit 1; }
+
+          echo "Making hub-tool executable..."
+          chmod +x hub-tool || { echo "❌ Failed to make executable"; exit 1; }
+
+          echo "Moving hub-tool to /usr/local/bin/..."
+          sudo mv hub-tool /usr/local/bin/hub-tool || { echo "❌ Failed to move to /usr/local/bin"; exit 1; }
+
+          echo "Verifying installation..."
+          which hub-tool || { echo "❌ hub-tool not found in PATH"; exit 1; }
+          hub-tool --version || { echo "❌ hub-tool is not working"; exit 1; }
 
 
 
