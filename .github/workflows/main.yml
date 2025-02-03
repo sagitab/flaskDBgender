@@ -40,7 +40,7 @@ jobs:
       - name: Build Docker Image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
           IMAGE_NAME: "sagisen/flaskaws:0.0.0.${{ github.run_number }}"
         run: |
           echo "Building Docker image..."
@@ -51,7 +51,7 @@ jobs:
       - name: Push Docker Image to Registry
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
           IMAGE_NAME: "sagisen/flaskaws:0.0.0.${{ github.run_number }}"
         run: |
           echo "Pushing Docker image to registry..."
