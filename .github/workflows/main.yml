@@ -73,13 +73,15 @@ jobs:
           echo "Making hub-tool executable..."
           chmod +x hub-tool || { echo "❌ Failed to make executable"; exit 1; }
 
-          echo "Moving hub-tool to /usr/local/bin/..."
-          sudo mv hub-tool /usr/local/bin/hub-tool || { echo "❌ Failed to move to /usr/local/bin"; exit 1; }
+          echo "Moving hub-tool to /tmp/hub-tool..."
+          mv hub-tool /tmp/hub-tool || { echo "❌ Failed to move to /tmp"; exit 1; }
+
+          echo "Updating PATH..."
+          export PATH=$PATH:/tmp  # Make sure it's in the path for this step
 
           echo "Verifying installation..."
           which hub-tool || { echo "❌ hub-tool not found in PATH"; exit 1; }
           hub-tool --version || { echo "❌ hub-tool is not working"; exit 1; }
-
 
 
       - name: Login to Docker Hub
