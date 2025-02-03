@@ -3,6 +3,14 @@ provider "google" {
   region  = "us-east1"
 }
 
+terraform {
+  backend "gcs" {
+    bucket  = "terraform-state-sensay"  # ✅ Your GCS bucket name
+    prefix  = "terraform/state"         # ✅ Path inside the bucket
+  }
+}
+
+
 resource "google_container_cluster" "primary" {
   name     = "gke-cluster"
   location = "us-east1"
