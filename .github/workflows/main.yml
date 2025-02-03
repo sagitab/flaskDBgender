@@ -58,6 +58,12 @@ jobs:
           docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
           docker push ${IMAGE_NAME}
 
+      - name: Install hub-tool
+        run: |
+          curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-hub-tool-0.4.1.tgz | tar xz
+          sudo mv hub-tool /usr/local/bin/
+          hub-tool --version  # Verify installation
+
       - name: Login to Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
