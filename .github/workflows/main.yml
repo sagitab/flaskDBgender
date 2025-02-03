@@ -135,11 +135,11 @@ jobs:
       # - name: Deploy to GKE
       #   run: kubectl apply -f k8s.yaml  # Apply the Kubernetes configuration (k8s.yaml)
 
-    - name: permisions
-      run: |
-        gcloud projects add-iam-policy-binding tactile-visitor-449316-h6 \
-        --member="serviceAccount:github-actions@tactile-visitor-449316-h6.iam.gserviceaccount.com" \
-        --role="roles/owner"
+      - name: permisions
+        run: |
+          gcloud projects add-iam-policy-binding tactile-visitor-449316-h6 \
+          --member="serviceAccount:github-actions@tactile-visitor-449316-h6.iam.gserviceaccount.com" \
+          --role="roles/owner"
 
 
       # # Stage 4: Configure AWS Credentials
