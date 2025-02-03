@@ -58,13 +58,40 @@ jobs:
           docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
           docker push ${IMAGE_NAME}
 
-      - name: delete
+      - name: Login to Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
         run: |
-          curl -X DELETE -u "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" \
-          "https://hub.docker.com/v2/repositories/sagisen/flaskaws/tags/0.0.0.24/"
+          echo "$DOCKER_PASSWORD" | hub-tool login --username "$DOCKER_USERNAME" --password-stdin
+
+      - name: delete-old-images
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+         
+          for i in $(seq 70 80); do 
+            hub-tool tag rm -f sagisen/flaskaws:0.0.0.$i
+          done
+         
+
+      # - name: delete-old-images
+      #   env:
+      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
+      #     RUN_NUMBER: ${{ github.run_number }}
+      #   run: |
+      #     LAST_DEL=$((RUN_NUMBER - 10))
+      #     FIRST_DEL=$((RUN_NUMBER - 20))
+
+      #     if ((RUN_NUMBER % 10 == 0)); then
+      #       for i in $(seq $FIRST_DEL $LAST_DEL); do 
+      #         hub-tool tag rm -f sagisen/flaskaws:0.0.0.$i
+      #       done
+      #     fi
+
 
 
       # - name: Test
