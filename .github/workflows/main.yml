@@ -124,16 +124,7 @@ jobs:
           sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
           gke-gcloud-auth-plugin --version
 
-      # - name: Set up kubectl
-      #   run: |
-      #     GITHUB_RUN_NUMBER=${{ github.run_number }}
-      #     PREV_BUILD=45
-      #     sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" k8s.yaml  # Double quotes for expansion
-      #     gcloud container clusters get-credentials cluster-1 --region us-central1 
-      #     kubectl get nodes  # Verify connection
-
-      # - name: Deploy to GKE
-      #   run: kubectl apply -f k8s.yaml  # Apply the Kubernetes configuration (k8s.yaml)
+      
 
       # - name: permisions
       #   run: |
@@ -193,6 +184,40 @@ jobs:
         env:
           TF_VAR_mysql_password: ${{ secrets.SQL_PASS }}  # Pass MySQL password securely using GitHub secrets
           TF_VAR_build_number: ${{ github.run_number }}
+      
+      - name: Set up kubectl
+        run: |
+          GITHUB_RUN_NUMBER=${{ github.run_number }}
+          PREV_BUILD=45
+          sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" k8s.yaml  # Double quotes for expansion
+          
+          # Retry mechanism for getting GKE credentials
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+
+          while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
+            echo "Attempt $((RETRY_COUNT+1)) to get GKE credentials..."
+            
+            if gcloud container clusters get-credentials gke-cluster --region us-central1; then
+              echo "✅ Successfully got GKE credentials."
+              break
+            else
+              echo "❌ Failed to get GKE credentials. Retrying in 10 seconds..."
+              RETRY_COUNT=$((RETRY_COUNT+1))
+              sleep 10
+            fi
+          done
+
+          # If we exhausted all retries, fail the pipeline
+          if [[ $RETRY_COUNT -eq $MAX_RETRIES ]]; then
+            echo "🚨 ERROR: Reached max retries ($MAX_RETRIES). Failing pipeline."
+            exit 1
+          fi
+
+          kubectl get nodes  # Verify connection
+
+      - name: Deploy to GKE
+        run: kubectl apply -f k8s.yaml  # Apply the Kubernetes configuration (k8s.yaml)
           
       # - name: Launch EC2 Instance
       #   id: launch_ec2
