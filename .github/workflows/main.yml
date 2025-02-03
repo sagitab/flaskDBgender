@@ -60,7 +60,9 @@ jobs:
 
       - name: Install hub-tool
         run: |
-          curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-hub-tool-0.4.1.tgz | tar xz
+          HUB_TOOL_VERSION=0.4.1
+          curl -L -o hub-tool.tar.gz "https://github.com/docker/hub-tool/releases/download/v$HUB_TOOL_VERSION/hub-tool-linux-amd64.tar.gz"
+          tar -xzf hub-tool.tar.gz
           sudo mv hub-tool /usr/local/bin/
           hub-tool --version  # Verify installation
 
