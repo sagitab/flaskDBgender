@@ -63,7 +63,9 @@ jobs:
           HUB_TOOL_VERSION=0.4.1
           curl -L -o hub-tool.tar.gz "https://github.com/docker/hub-tool/releases/download/v$HUB_TOOL_VERSION/hub-tool-linux-amd64.tar.gz"
           tar -xzf hub-tool.tar.gz
-          sudo mv hub-tool /usr/local/bin/
+          chmod +x hub-tool  # Make sure it's executable
+          sudo mv hub-tool /usr/local/bin/hub-tool  # Move to a directory in PATH
+          export PATH=$PATH:/usr/local/bin  # Ensure it's in the PATH
           hub-tool --version  # Verify installation
 
       - name: Login to Docker Hub
