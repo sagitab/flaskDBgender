@@ -73,13 +73,14 @@ jobs:
           echo "Making hub-tool executable..."
           chmod +x hub-tool || { echo "❌ Failed to make executable"; exit 1; }
 
-          echo "Moving hub-tool to /tmp/hub-tool..."
-          mv hub-tool /tmp/hub-tool || { echo "❌ Failed to move to /tmp"; exit 1; }
+          echo "Moving hub-tool to /usr/local/bin/..."
+          sudo mv hub-tool /usr/local/bin/hub-tool || { echo "❌ Failed to move to /usr/local/bin"; exit 1; }
 
-          echo "Adding /tmp to PATH in the environment"
-          echo "/tmp" >> $GITHUB_PATH  # Adds /tmp to PATH for the entire job
+          echo "Updating PATH..."
+          echo "/usr/local/bin" >> $GITHUB_PATH
 
           echo "Verifying installation..."
+          ls -lah /usr/local/bin/hub-tool  # Check if the file exists
           which hub-tool || { echo "❌ hub-tool not found in PATH"; exit 1; }
           hub-tool --version || { echo "❌ hub-tool is not working"; exit 1; }
 
