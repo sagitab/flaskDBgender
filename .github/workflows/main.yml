@@ -60,34 +60,19 @@ jobs:
 
       - name: Install hub-tool
         run: |
-          set -e  # Exit on any error
           HUB_TOOL_VERSION=0.4.6
-          DOWNLOAD_URL="https://github.com/docker/hub-tool/releases/download/v$HUB_TOOL_VERSION/hub-tool-linux-amd64.tar.gz"
-
-          echo "Downloading hub-tool from: $DOWNLOAD_URL"
-          curl -L -o hub-tool.tar.gz "$DOWNLOAD_URL"
-
-          echo "Extracting hub-tool..."
+          mkdir -p /home/runner/.local/bin
+          curl -L -o hub-tool.tar.gz "https://github.com/docker/hub-tool/releases/download/v$HUB_TOOL_VERSION/hub-tool-linux-amd64.tar.gz"
           tar -xzf hub-tool.tar.gz
-
-          echo "Making hub-tool executable..."
           chmod +x hub-tool
-
-          echo "Moving hub-tool to /usr/local/bin/..."
-          sudo mv hub-tool /usr/local/bin/hub-tool
-
-          echo "Manually setting permissions..."
-          sudo chmod +x /usr/local/bin/hub-tool
-
-          echo "Updating PATH..."
-          echo "/usr/local/bin" >> $GITHUB_PATH
-
-          echo "Verifying installation..."
-          export PATH=$PATH:/usr/local/bin  # Ensure the new path is loaded
-          ls -lah /usr/local/bin/hub-tool  # Check if it's in the correct location
-          which hub-tool || { echo "❌ hub-tool not found in PATH"; exit 1; }
-          hub-tool --version || { echo "❌ hub-tool is not working"; exit 1; }
-
+          mv hub-tool /home/runner/.local/bin/hub-tool  # Move to writable directory
+          echo "/home/runner/.local/bin" >> $GITHUB_PATH  # Add to PATH
+          rm hub-tool.tar.gz  # Cleanup
+          
+      - name: Verify hub-tool
+        run: |
+            which hub-tool || { echo "❌ hub-tool still not found"; exit 1; }
+            hub-tool --version
 
       - name: Login to Docker Hub
         env:
