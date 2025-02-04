@@ -80,7 +80,7 @@ jobs:
           export PATH=$PATH:/tmp  # Make sure it's in the path for this step
 
           echo "Verifying installation..."
-          which hub-tool || { echo "❌ hub-tool not found in PATH"; exit 1; }
+          # which hub-tool || { echo "❌ hub-tool not found in PATH"; exit 1; }
           hub-tool --version || { echo "❌ hub-tool is not working"; exit 1; }
 
 
