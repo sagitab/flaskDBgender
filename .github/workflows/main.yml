@@ -58,26 +58,26 @@ jobs:
           docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
           docker push ${IMAGE_NAME}
 
-      - name: Install Dependencies
-        run: |
-           sudo apt-get remove --purge -y containerd
-           sudo apt-get install -y make golang 
-      - name: Clone and Build Docker Hub Tool
-        run: |
-            git clone https://github.com/docker/hub-tool.git
-            cd hub-tool
-            make
-            mkdir -p $HOME/.local/bin  # Create a local bin directory
-            mv bin/hub-tool $HOME/.local/bin/hub-tool  # Move to a path owned by runner
-            echo "$HOME/.local/bin" >> $GITHUB_PATH  # Add to PATH
-            hub-tool --version  # Verify installation
+      # - name: Install Dependencies
+      #   run: |
+      #      sudo apt-get remove --purge -y containerd
+      #      sudo apt-get install -y make golang 
+      # - name: Clone and Build Docker Hub Tool
+      #   run: |
+      #       git clone https://github.com/docker/hub-tool.git
+      #       cd hub-tool
+      #       make
+      #       mkdir -p $HOME/.local/bin  # Create a local bin directory
+      #       mv bin/hub-tool $HOME/.local/bin/hub-tool  # Move to a path owned by runner
+      #       echo "$HOME/.local/bin" >> $GITHUB_PATH  # Add to PATH
+      #       hub-tool --version  # Verify installation
         
-      - name: Login to Docker Hub
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
-        run: |
-          echo "$DOCKER_PASSWORD" | hub-tool login --username "$DOCKER_USERNAME" --password-stdin
+      # - name: Login to Docker Hub
+      #   env:
+      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
+      #   run: |
+      #     echo "$DOCKER_PASSWORD" | hub-tool login --username "$DOCKER_USERNAME" --password-stdin
 
       # - name: Install Dependencies
       #   run: |
