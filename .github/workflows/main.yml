@@ -58,29 +58,19 @@ jobs:
           docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
           docker push ${IMAGE_NAME}
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-            sudo apt-get update && sudo apt-get install -y make docker.io golang
+            sudo yum install -y make docker golang 
         
-      - name: Clone hub-tool repository
+      - name: Clone and Build Docker Hub Tool
         run: |
-          git clone https://github.com/docker/hub-tool.git
-          cd hub-tool
-          git checkout v0.4.6  # Ensure you're on the correct version
-      
-      - name: Build hub-tool
-        run: |
-          cd hub-tool
-          make
-          mkdir -p /home/runner/.local/bin
-          mv bin/hub-tool /home/runner/.local/bin/
-          chmod +x /home/runner/.local/bin/hub-tool
-          echo "/home/runner/.local/bin" >> $GITHUB_PATH  # Add to PATH
-      
-      - name: Verify hub-tool
-        run: |
-          which hub-tool || { echo "❌ hub-tool still not found"; exit 1; }
-          hub-tool --version
+            git clone https://github.com/docker/hub-tool.git
+            cd hub-tool
+            make
+            mkdir -p $HOME/.local/bin  # Create a local bin directory
+            mv bin/hub-tool $HOME/.local/bin/hub-tool  # Move to a path owned by runner
+            echo "$HOME/.local/bin" >> $GITHUB_PATH  # Add to PATH
+            hub-tool --version  # Verify installation
         
       - name: Login to Docker Hub
         env:
