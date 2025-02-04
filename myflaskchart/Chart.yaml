@@ -1,0 +1,6 @@
+apiVersion: v2
+name: myflaskchart
+description: A Helm chart for deploying Flask with MySQL
+type: application
+version: 0.1.0
+appVersion: "latest"

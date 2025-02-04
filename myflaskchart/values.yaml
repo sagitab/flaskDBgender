@@ -1,0 +1,24 @@
+replicaCount: 2
+
+image:
+  repository: sagisen/flaskaws
+  tag: "0.0.0.45"
+  pullPolicy: IfNotPresent
+
+mysql:
+  image: mysql:8.0
+  database: mydb
+  user: root
+  password: "DataLC23"
+  serviceName: mysql-service
+  replicas: 1
+  port: 3306
+  targetPort: 3306
+  clusterIP: None
+  passwordKey: MYSQL_PASSWORD
+  databaseKey: MYSQL_DB
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 5002
