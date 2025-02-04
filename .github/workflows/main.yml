@@ -60,8 +60,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-            sudo yum install -y make docker golang 
-        
+           sudo apt-get update
+           sudo apt-get install -y make docker.io golang git
       - name: Clone and Build Docker Hub Tool
         run: |
             git clone https://github.com/docker/hub-tool.git
