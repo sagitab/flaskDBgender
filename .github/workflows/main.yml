@@ -58,22 +58,30 @@ jobs:
           docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
           docker push ${IMAGE_NAME}
 
-      - name: Install hub-tool
+      - name: Install dependencies
         run: |
-          HUB_TOOL_VERSION=0.4.6
+            sudo apt-get update && sudo apt-get install -y make docker.io golang
+        
+      - name: Clone hub-tool repository
+        run: |
+          git clone https://github.com/docker/hub-tool.git
+          cd hub-tool
+          git checkout v0.4.6  # Ensure you're on the correct version
+      
+      - name: Build hub-tool
+        run: |
+          cd hub-tool
+          make
           mkdir -p /home/runner/.local/bin
-          curl -L -o hub-tool.tar.gz "https://github.com/docker/hub-tool/releases/download/v$HUB_TOOL_VERSION/hub-tool-linux-amd64.tar.gz"
-          tar -xzf hub-tool.tar.gz
-          chmod +x hub-tool
-          mv hub-tool /home/runner/.local/bin/hub-tool  # Move to writable directory
+          mv bin/hub-tool /home/runner/.local/bin/
+          chmod +x /home/runner/.local/bin/hub-tool
           echo "/home/runner/.local/bin" >> $GITHUB_PATH  # Add to PATH
-          rm hub-tool.tar.gz  # Cleanup
-          
+      
       - name: Verify hub-tool
         run: |
-            which hub-tool || { echo "❌ hub-tool still not found"; exit 1; }
-            hub-tool --version
-
+          which hub-tool || { echo "❌ hub-tool still not found"; exit 1; }
+          hub-tool --version
+        
       - name: Login to Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
