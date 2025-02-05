@@ -247,10 +247,10 @@ jobs:
 
      - name: Package Helm Chart
        run: |
-        cd charts
-        helm package myflaskchart -d helm-packages
-        cd ..
-        ls -lrta
+          cd charts
+          helm package myflaskchart -d helm-packages
+          cd ..
+          ls -lrta
 
      - name: Update Helm Repo Index # searches for tar.gz file in same dir.
        run: |
@@ -285,7 +285,7 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          helm upgrade --install myflaskchart oci://registry-1.docker.io/$DOCKER_USERNAME/myflaskchart --version 0.1.${{ github.run_number }} --namespace default
-      
+           helm upgrade --install myflaskchart oci://registry-1.docker.io/$DOCKER_USERNAME/myflaskchart --version 0.1.${{ github.run_number }} --namespace default
+        
     
      
