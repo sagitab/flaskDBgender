@@ -249,18 +249,22 @@ jobs:
         run: |
           helm package myflaskchart -d helm-packages
 
-      - name: Login to Docker Hub
-        run:  echo ${{ secrets.DOCKER_PASSWORD }} | helm registry login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin registry-1.docker.io
+      - name: Install helm-push plugin
+        run: |
+          helm plugin install https://github.com/chartmuseum/helm-push
+
+      - name: Login to Docker Hub OCI Registry
+        run: echo ${{ secrets.DOCKER_DELETE }} | helm registry login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin registry-1.docker.io
 
       - name: Push Helm Chart to Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          helm plugin install https://github.com/chartmuseum/helm-push
           helm version
           helm plugin list
           helm registry list
           helm push helm-packages/*.tgz oci://registry-1.docker.io/${DOCKER_USERNAME}/myflaskchart
+
       - name: Deploy Helm Chart to GKE
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
