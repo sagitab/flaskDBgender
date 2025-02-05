@@ -258,6 +258,7 @@ jobs:
         run: |
           helm plugin install https://github.com/chartmuseum/helm-push
           helm version
+          helm plugin list
           helm registry list
           helm push helm-packages/*.tgz oci://registry-1.docker.io/${DOCKER_USERNAME}/myflaskchart
       - name: Deploy Helm Chart to GKE
