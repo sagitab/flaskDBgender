@@ -239,8 +239,8 @@ jobs:
         run: |
           curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-      - name: Update Helm Chart Version
-        run: |
+     - name: Update Helm Chart Version
+       run: |
           VERSION="0.1.${{ github.run_number }}"
           sed -i "s/^version:.*/version: $VERSION/" myflaskchart/Chart.yaml
           cat myflaskchart/Chart.yaml  # Debugging: Check the updated version
@@ -252,8 +252,8 @@ jobs:
         cd ..
         ls -lrta
 
-      - name: Update Helm Repo Index # searches for tar.gz file in same dir.
-        run: |
+     - name: Update Helm Repo Index # searches for tar.gz file in same dir.
+       run: |
           helm repo index --url https://github.com/sagitab/helm_flask .
           ls -lrta
 
