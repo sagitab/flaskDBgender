@@ -256,7 +256,13 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          helm push helm-packages/*.tgz oci://registry-1.docker.io/$DOCKER_USERNAME    
+          helm push helm-packages/*.tgz oci://docker.io/$DOCKER_USERNAME/flaskaws
+   
+      - name: Deploy Helm Chart to GKE
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        run: |
+          helm upgrade --install myflask-app oci://registry-1.docker.io/$DOCKER_USERNAME --version 0.1.${{ github.run_number }} --namespace default
       
     
      
