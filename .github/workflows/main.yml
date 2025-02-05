@@ -203,8 +203,54 @@ jobs:
         env:
           TF_VAR_mysql_password: ${{ secrets.SQL_PASS }}  # Pass MySQL password securely using GitHub secrets
           TF_VAR_build_number: ${{ github.run_number }}
+
+      - name: Conect to gke kluster
+        run: |
+          # GITHUB_RUN_NUMBER=${{ github.run_number }}
+          # PREV_BUILD=45
+          # sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" k8s.yaml  # Double quotes for expansion
+          
+          # Retry mechanism for getting GKE credentials
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+
+          while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
+            echo "Attempt $((RETRY_COUNT+1)) to get GKE credentials..."
+            
+            if gcloud container clusters get-credentials gke-cluster --region us-east1; then
+              echo "✅ Successfully got GKE credentials."
+              break
+            else
+              echo "❌ Failed to get GKE credentials. Retrying in 10 seconds..."
+              RETRY_COUNT=$((RETRY_COUNT+1))
+              sleep 10
+            fi
+          done
+
+          # If we exhausted all retries, fail the pipeline
+          if [[ $RETRY_COUNT -eq $MAX_RETRIES ]]; then
+            echo "🚨 ERROR: Reached max retries ($MAX_RETRIES). Failing pipeline."
+            exit 1
+          fi
+
+          kubectl get nodes  # Verify connection
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Package Helm Chart
+        run: |
+          helm package myflaskchart -d helm-packages
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_DELETE }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Push Helm Chart to Docker Hub
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        run: |
+          helm push helm-packages/*.tgz oci://registry-1.docker.io/$DOCKER_USERNAME    
       
-     
-    
     
      
