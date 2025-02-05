@@ -250,12 +250,13 @@ jobs:
           helm package myflaskchart -d helm-packages
 
       - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_DELETE }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        run:  echo ${{ secrets.DOCKER_PASSWORD }} | helm registry login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin registry-1.docker.io
 
       - name: Push Helm Chart to Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
+          helm plugin install https://github.com/chartmuseum/helm-push
           helm version
           helm registry list
           helm push helm-packages/*.tgz oci://registry-1.docker.io/${DOCKER_USERNAME}/myflaskchart
@@ -263,7 +264,7 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          helm upgrade --install myflask-app oci://registry-1.docker.io/$DOCKER_USERNAME --version 0.1.${{ github.run_number }} --namespace default
+          helm upgrade --install myflask-app oci://registry-1.docker.io/$DOCKER_USERNAME/myflaskchart --version 0.1.${{ github.run_number }} --namespace default
       
     
      
