@@ -245,31 +245,47 @@ jobs:
           sed -i "s/^version:.*/version: $VERSION/" myflaskchart/Chart.yaml
           cat myflaskchart/Chart.yaml  # Debugging: Check the updated version
 
-      - name: Package Helm Chart
-        run: |
-          helm package myflaskchart -d helm-packages
+     - name: Package Helm Chart
+       run: |
+        cd charts
+        helm package myflaskchart -d helm-packages
+        cd ..
+        ls -lrta
 
-      - name: Install helm-push plugin
+      - name: Update Helm Repo Index # searches for tar.gz file in same dir.
         run: |
-          helm plugin install https://github.com/chartmuseum/helm-push
+          helm repo index --url https://github.com/sagitab/helm_flask .
+          ls -lrta
 
-      - name: Login to Docker Hub OCI Registry
-        run: echo ${{ secrets.DOCKER_DELETE }} | helm registry login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin registry-1.docker.io
+     - name: Push helm chart ( tgz and index.yaml ) to helm repo
+       env:
+         HELM_REPO_PAT: ${{ secrets.GIT_KEY }} 
+       run: |
+          set -x
+          git clone https://${HELM_REPO_PAT}@github.com/sagitab/helm_flask.git helmrepo
+          cd helmrepo
+          pwd
 
-      - name: Push Helm Chart to Docker Hub
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        run: |
-          helm version
-          helm plugin list
-          helm registry list
-          helm push helm-packages/*.tgz oci://registry-1.docker.io/${DOCKER_USERNAME}/myflaskchart
+          git config --global user.name "github-actions-app"
+          git config --global user.email "github-actions@gmail.com"
+          ls -lrta
+
+          rm -f *.tgz && rm -f index.yaml
+          cp ../*.tgz .
+          cp ../index.yaml .
+          ls -lrta
+
+          git add .
+          git commit -m "Updated helm chart version from APP REPO TRIGGER - Version 0.0.${{ github.run_number }}"
+          git push origin main
+
+          echo "pushed updated helm chart to helm-repo"
 
       - name: Deploy Helm Chart to GKE
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          helm upgrade --install myflask-app oci://registry-1.docker.io/$DOCKER_USERNAME/myflaskchart --version 0.1.${{ github.run_number }} --namespace default
+          helm upgrade --install myflaskchart oci://registry-1.docker.io/$DOCKER_USERNAME/myflaskchart --version 0.1.${{ github.run_number }} --namespace default
       
     
      
