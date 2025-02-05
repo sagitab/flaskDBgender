@@ -256,6 +256,8 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
+          helm version
+          helm registry list
           helm push helm-packages/*.tgz oci://registry-1.docker.io/${DOCKER_USERNAME}/myflaskchart
       - name: Deploy Helm Chart to GKE
         env:
