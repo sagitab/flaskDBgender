@@ -2,14 +2,14 @@ replicaCount: 2
 
 image:
   repository: sagisen/flaskaws
-  tag: "0.0.0.45"
+  tag: "0.0.0.114"
   pullPolicy: IfNotPresent
 
 mysql:
   image: mysql:8.0
   database: mydb
   user: root
-  password: "DataLC23"
+  password: "DataL123"
   serviceName: mysql-service
   replicas: 1
   port: 3306
@@ -17,6 +17,7 @@ mysql:
   clusterIP: None
   passwordKey: MYSQL_PASSWORD
   databaseKey: MYSQL_DB
+  secretName: mysql-secrets  # ✅ Add this to reference secrets in Helm templates
 
 service:
   type: LoadBalancer
