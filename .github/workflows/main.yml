@@ -280,13 +280,21 @@ jobs:
 
           echo "Pushed updated Helm chart to Helm repo"
 
-      - name: Deploy Helm Chart to GKE
+     # Add and update Helm repo
+      - name: Add Helm Repo and Update
         run: |
-          cat index.yaml
-          helm search repo myrepo/myflaskchart --versions
           helm repo add myrepo https://sagitab.github.io/helm_flask
           helm repo update --force
-          helm repo list
-          helm upgrade --install myflaskchart myrepo/myflaskchart --version 0.1.${{ github.run_number }} --namespace default
+          helm repo list  # Debugging step to confirm repository is added
+
+      # Check the available charts from the repository to confirm the version
+      - name: Check Available Versions of myflaskchart
+        run: |
+          helm search repo myrepo/myflaskchart --versions  # This will show all available versions
+
+      # Run the upgrade/install command
+      - name: Deploy Helm Chart to GKE
+        run: |
+          helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
 
      
