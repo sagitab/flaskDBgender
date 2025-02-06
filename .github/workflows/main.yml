@@ -234,7 +234,7 @@ jobs:
           fi
 
           kubectl get nodes  # Verify connection
-
+          
       - name: Install Helm
         run: |
           curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
@@ -247,14 +247,15 @@ jobs:
 
       - name: Package Helm Chart
         run: |
-          mkdir -p helm-packages  # Ensure the directory exists
-          helm package myflaskchart -d helm-packages
-          ls -lrta helm-packages
+          # Ensure the chart is packaged at the root of the repository
+          helm package myflaskchart -d .  # This will save the .tgz file in the root directory
+          ls -lrta  # List the files to verify the packaging
 
       - name: Update Helm Repo Index
         run: |
-          helm repo index --url https://sagitab.github.io/helm_flask .  
-          ls -lrta
+          # Update the index.yaml dynamically based on the location of the .tgz file
+          helm repo index . --url https://sagitab.github.io/helm_flask  # This will create the correct URL in index.yaml
+          ls -lrta  # Verify the index.yaml file update
 
       - name: Push Helm Chart (tgz and index.yaml) to Helm Repo
         env:
@@ -267,10 +268,11 @@ jobs:
           git config --global user.name "github-actions-app"
           git config --global user.email "github-actions@gmail.com"
 
+          # Remove old files and copy the new ones
           rm -f *.tgz && rm -f index.yaml
-          cp ../helm-packages/*.tgz .
-          cp ../index.yaml .
-          ls -lrta
+          cp ../*.tgz .  # Copy the newly packaged .tgz file
+          cp ../index.yaml .  # Copy the updated index.yaml
+          ls -lrta  # Verify the files
 
           git add .
           git commit -m "Updated Helm chart version from APP REPO TRIGGER - Version 0.1.${{ github.run_number }}"
@@ -284,5 +286,4 @@ jobs:
           helm repo update
           helm upgrade --install myflaskchart myrepo/myflaskchart --version 0.1.${{ github.run_number }} --namespace default
 
-    
      
