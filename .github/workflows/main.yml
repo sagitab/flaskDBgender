@@ -58,6 +58,19 @@ jobs:
           docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
           docker push ${IMAGE_NAME}
 
+      - name: Clean up Docker Image 
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
+          REPO_NAME: "flaskaws"
+          RUN_NUMBER: "${{ github.run_number }}"
+        run: |
+          DELETE_IMAGE=$(( $RUN_NUMBER-20 ))
+          curl -X DELETE -H "Authorization: Bearer $DOCKER_PASSWORD" \
+          "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$REPO_NAME/tags/0.0.0.$DELETE_IMAGE"
+
+
+
       # - name: Install Dependencies
       #   run: |
       #      sudo apt-get remove --purge -y containerd
