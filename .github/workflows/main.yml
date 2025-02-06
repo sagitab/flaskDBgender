@@ -280,6 +280,10 @@ jobs:
 
           echo "Pushed updated Helm chart to Helm repo"
 
+      - name: Wait for GitHub Pages to update
+        run: |
+          sleep 40  # Wait for 30 seconds to ensure the file is available
+
 
       # Run the upgrade/install command
       - name: Deploy Helm Chart to GKE
