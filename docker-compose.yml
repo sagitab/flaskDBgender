@@ -1,6 +1,6 @@
 services:
   flask-app:
-    image: sagisen/flaskaws:0.0.0.47
+    image: sagisen/flaskaws:0.0.0.139
     container_name: flask_app
     ports:
       - "${PORT:-5002}:${PORT:-5002}"

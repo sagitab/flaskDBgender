@@ -5,6 +5,8 @@ import os
 import random
 from werkzeug.utils import secure_filename
 from prometheus_client import start_http_server, Summary
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from flask import Response
 # Create a Prometheus metric (this is a simple timer)
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
 #check
@@ -156,9 +158,7 @@ def post_add_img():
 
 @app.route('/metrics')
 def metrics():
-    from prometheus_client import generate_latest
-    return generate_latest()   
-
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
 @app.route('/detect_gender', methods=['POST'])
 def detect_gender():
     pic = getPic()
