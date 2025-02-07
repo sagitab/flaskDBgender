@@ -4,5 +4,5 @@ requests
 flask-mysql
 mysql-connector-python
 python-dotenv
-
+prometheus_client
 

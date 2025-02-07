@@ -36,6 +36,28 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3  # Will retry 3 times before marking the MySQL container as unhealthy
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - flask-app
+    networks:
+      - app-network
+
+  # grafana:
+  #   image: grafana/grafana
+  #   container_name: grafana
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - prometheus
+  #   networks:
+  #     - app-network
+
 
 volumes:
   mysql-data:

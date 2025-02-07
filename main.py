@@ -4,6 +4,9 @@ import mysql.connector
 import os
 import random
 from werkzeug.utils import secure_filename
+from prometheus_client import start_http_server, Summary
+# Create a Prometheus metric (this is a simple timer)
+REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
 #check
 app = Flask(__name__)
 
@@ -107,7 +110,7 @@ def insert_img(name,path):
 
 # Genderize.io API URL
 API_URL = "https://api.genderize.io"
-
+@REQUEST_TIME.time()
 @app.route('/')
 def index():
     counter=getCounter()
@@ -151,7 +154,10 @@ def post_add_img():
 
     return render_template('add_img.html',msg=msg)
 
-   
+@app.route('/metrics')
+def metrics():
+    from prometheus_client import generate_latest
+    return generate_latest()   
 
 @app.route('/detect_gender', methods=['POST'])
 def detect_gender():
