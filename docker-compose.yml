@@ -1,6 +1,6 @@
 services:
   flask-app:
-    image: sagisen/flaskaws:0.0.0.139
+    image: sagisen/flaskaws:0.0.0.140
     container_name: flask_app
     ports:
       - "${PORT:-5002}:${PORT:-5002}"
@@ -48,19 +48,22 @@ services:
     networks:
       - app-network
 
-  # grafana:
-  #   image: grafana/grafana
-  #   container_name: grafana
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - prometheus
-  #   networks:
-  #     - app-network
-
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - app-network
+    volumes:
+      - grafana-data:/var/lib/grafana  # Persist Grafana dashboards
 
 volumes:
   mysql-data:
+  grafana-data:
+
 
 networks:
   app-network:
