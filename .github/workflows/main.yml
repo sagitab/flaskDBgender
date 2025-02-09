@@ -257,6 +257,10 @@ jobs:
           VERSION="0.1.${{ github.run_number }}"
           sed -i "s/^version:.*/version: $VERSION/" myflaskchart/Chart.yaml
           cat myflaskchart/Chart.yaml  # Debugging: Check the updated version
+      - name: Update Docker Image in values.yaml
+        run: |
+          sed -i 's|tag:.*|tag: "0.0.0.${{ github.run_number }}"|' myflaskchart/values.yaml
+          cat myflaskchart/values.yaml  # Debugging: Check the updated file
 
       - name: Package Helm Chart
         run: |
