@@ -307,4 +307,22 @@ jobs:
         run: |
           helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
 
-     
+      - name: Add Prometheus Helm Repo
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+
+      - name: Install Monitoring Stack (Prometheus + Grafana)
+        run: |
+          helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+            --namespace monitoring --create-namespace
+
+      - name: Wait for Monitoring Pods to Start
+        run: |
+          kubectl wait --for=condition=available --timeout=300s deployment -n monitoring monitoring-grafana
+          kubectl wait --for=condition=available --timeout=300s deployment -n monitoring monitoring-kube-prometheus-sta-prometheus
+
+      - name: Port Forward Grafana (for local access)
+        run: |
+          nohup kubectl port-forward svc/monitoring-grafana 3000:80 -n monitoring > /dev/null 2>&1 &
+    
