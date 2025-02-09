@@ -68,39 +68,239 @@ jobs:
           DELETE_IMAGE=$(( $RUN_NUMBER-20 ))
           curl -X DELETE -H "Authorization: Bearer $DOCKER_PASSWORD" \
           "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$REPO_NAME/tags/0.0.0.$DELETE_IMAGE"
-      - name: Test
-        run: |
-          cat > .env << "ENV"  # Double quotes for expansion
-          MYSQL_HOST=mysql
-          MYSQL_USER=root
-          MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
-          MYSQL_DB=mydb
-          PORT=5002
-          ENV
-          GITHUB_RUN_NUMBER=${{ github.run_number }}
-          PREV_BUILD=47
-          sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml  # Double quotes for expansion
 
-          ls
-          docker images
-          docker compose up -d  # Ensure Docker Compose V2 is used
-          sleep 1
-          docker compose ps
-          sleep 30
-          i=0
-          max_attempts=5
+
+
+      # - name: Install Dependencies
+      #   run: |
+      #      sudo apt-get remove --purge -y containerd
+      #      sudo apt-get install -y make golang 
+      # - name: Clone and Build Docker Hub Tool
+      #   run: |
+      #       git clone https://github.com/docker/hub-tool.git
+      #       cd hub-tool
+      #       make
+      #       mkdir -p $HOME/.local/bin  # Create a local bin directory
+      #       mv bin/hub-tool $HOME/.local/bin/hub-tool  # Move to a path owned by runner
+      #       echo "$HOME/.local/bin" >> $GITHUB_PATH  # Add to PATH
+      #       hub-tool --version  # Verify installation
+        
+      # - name: Login to Docker Hub
+      #   env:
+      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
+      #   run: |
+      #     echo "$DOCKER_PASSWORD" | hub-tool login --username "$DOCKER_USERNAME" --password-stdin
+
+      # - name: Install Dependencies
+      #   run: |
+      #      sudo apt-get remove --purge -y containerd
+      #      sudo apt-get install -y make golang 
+      # - name: Clone and Build Docker Hub Tool
+      #   run: |
+      #       git clone https://github.com/docker/hub-tool.git
+      #       cd hub-tool
+      #       make
+      #       mkdir -p $HOME/.local/bin  # Create a local bin directory
+      #       mv bin/hub-tool $HOME/.local/bin/hub-tool  # Move to a path owned by runner
+      #       echo "$HOME/.local/bin" >> $GITHUB_PATH  # Add to PATH
+      #       hub-tool --version  # Verify installation    
+
+      # - name: delete-old-images
+      #   env:
+      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
+      #     RUN_NUMBER: ${{ github.run_number }}
+      #   run: |
+      #     LAST_DEL=$((RUN_NUMBER - 10))
+      #     FIRST_DEL=$((RUN_NUMBER - 20))
+
+      #     if ((RUN_NUMBER % 10 == 0)); then
+      #       for i in $(seq $FIRST_DEL $LAST_DEL); do 
+      #         hub-tool tag rm -f sagisen/flaskaws:0.0.0.$i
+      #       done
+      #     fi
+
+
+
+      # - name: Test
+      #   run: |
+      #     cat > .env << "ENV"  # Double quotes for expansion
+      #     MYSQL_HOST=mysql
+      #     MYSQL_USER=root
+      #     MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
+      #     MYSQL_DB=mydb
+      #     PORT=5002
+      #     ENV
+      #     GITHUB_RUN_NUMBER=${{ github.run_number }}
+      #     PREV_BUILD=47
+      #     sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml  # Double quotes for expansion
+
+      #     ls
+      #     docker images
+      #     docker compose up -d  # Ensure Docker Compose V2 is used
+      #     sleep 1
+      #     docker compose ps
+      #     sleep 30
+      #     i=0
+      #     max_attempts=5
           
-          while [ $i -lt $max_attempts ]; do
-            echo "Attempt $((i + 1)) of $max_attempts..."
-            if curl -sSf http://localhost:5002 > /dev/null; then
-              echo "Flask app is reachable."
-              exit 0
+      #     while [ $i -lt $max_attempts ]; do
+      #       echo "Attempt $((i + 1)) of $max_attempts..."
+      #       if curl -sSf http://localhost:5002 > /dev/null; then
+      #         echo "Flask app is reachable."
+      #         exit 0
+      #       else
+      #         echo "Flask app is not reachable. Retrying in 5 seconds..."
+      #         sleep 5
+      #         i=$((i + 1))
+      #       fi
+      #     done
+
+      #     echo "Flask app failed to respond after $max_attempts attempts."
+      #     exit 1
+
+      - name: Authenticate with Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCLOUD_KEY }}
+
+      - name: Authenticate with GCP
+        run: |
+          gcloud auth activate-service-account --key-file=$GOOGLE_GHA_CREDS_PATH
+          gcloud auth list
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+          GOOGLE_GHA_CREDS_PATH: ${{ steps.auth.outputs.credentials_file_path }}
+
+
+           # Install Google Cloud SDK
+      - name: Install Google Cloud SDK
+        run: |
+          echo "Installing Google Cloud SDK..."
+          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+          echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          sudo apt-get update
+          sudo apt-get install google-cloud-sdk
+
+      - name: Install gke-gcloud-auth-plugin
+        run: |
+          sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
+          gke-gcloud-auth-plugin --version
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.10.4  # Specify your desired Terraform version
+
+      - name: Cache Terraform providers
+        uses: actions/cache@v2
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
+        env:
+          TF_VAR_mysql_password: ${{ secrets.MYSQL_PASSWORD }}
+          TF_VAR_build_number: ${{ github.run_number }}
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        env:
+          TF_VAR_mysql_password: ${{ secrets.SQL_PASS }}  # Pass MySQL password securely using GitHub secrets
+          TF_VAR_build_number: ${{ github.run_number }}
+
+      - name: Conect to gke kluster
+        run: |
+          # GITHUB_RUN_NUMBER=${{ github.run_number }}
+          # PREV_BUILD=140 #to change
+          # sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" k8s.yaml  # Double quotes for expansion
+          
+          # Retry mechanism for getting GKE credentials
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+
+          while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
+            echo "Attempt $((RETRY_COUNT+1)) to get GKE credentials..."
+            
+            if gcloud container clusters get-credentials gke-cluster --region us-east1; then
+              echo "✅ Successfully got GKE credentials."
+              break
             else
-              echo "Flask app is not reachable. Retrying in 5 seconds..."
-              sleep 5
-              i=$((i + 1))
+              echo "❌ Failed to get GKE credentials. Retrying in 10 seconds..."
+              RETRY_COUNT=$((RETRY_COUNT+1))
+              sleep 10
             fi
           done
 
-          echo "Flask app failed to respond after $max_attempts attempts."
-          exit 1
+          # If we exhausted all retries, fail the pipeline
+          if [[ $RETRY_COUNT -eq $MAX_RETRIES ]]; then
+            echo "🚨 ERROR: Reached max retries ($MAX_RETRIES). Failing pipeline."
+            exit 1
+          fi
+
+          kubectl get nodes  # Verify connection
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Update Helm Chart Version
+        run: |
+          VERSION="0.1.${{ github.run_number }}"
+          sed -i "s/^version:.*/version: $VERSION/" myflaskchart/Chart.yaml
+          cat myflaskchart/Chart.yaml  # Debugging: Check the updated version
+
+      - name: Package Helm Chart
+        run: |
+          # Ensure the chart is packaged at the root of the repository
+          helm package myflaskchart -d .  # This will save the .tgz file in the root directory
+          ls -lrta  # List the files to verify the packaging
+
+      - name: Update Helm Repo Index
+        run: |
+          # Update the index.yaml dynamically based on the location of the .tgz file
+          helm repo index . --url https://sagitab.github.io/helm_flask  # This will create the correct URL in index.yaml
+          ls -lrta  # Verify the index.yaml file update
+
+      - name: Push Helm Chart (tgz and index.yaml) to Helm Repo
+        env:
+          HELM_REPO_PAT: ${{ secrets.GIT_KEY }} 
+        run: |
+          set -x
+          git clone https://${HELM_REPO_PAT}@github.com/sagitab/helm_flask.git helmrepo
+          cd helmrepo
+
+          git config --global user.name "github-actions-app"
+          git config --global user.email "github-actions@gmail.com"
+
+          # Remove old files and copy the new ones
+          rm -f *.tgz && rm -f index.yaml
+          cp ../*.tgz .  # Copy the newly packaged .tgz file
+          cp ../index.yaml .  # Copy the updated index.yaml
+          ls -lrta  # Verify the files
+
+          git add .
+          git commit -m "Updated Helm chart version from APP REPO TRIGGER - Version 0.1.${{ github.run_number }}"
+          git push origin main
+
+          echo "Pushed updated Helm chart to Helm repo"
+
+      - name: Wait for GitHub Pages to update
+        run: |
+          sleep 40  # Wait for 30 seconds to ensure the file is available
+
+
+      # Run the upgrade/install command
+      - name: Deploy Helm Chart to GKE
+        run: |
+          helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
+
+     

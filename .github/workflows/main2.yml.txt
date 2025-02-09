@@ -1,0 +1,106 @@
+name: Flask CI/CD Pipeline
+# Check asfdasf test
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull requests to the main branch
+
+jobs:
+  ci-cd:
+    runs-on: ubuntu-latest
+
+    env:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_DB: mydb
+      PORT: 5002
+
+    steps:
+      # Stage 1: Clean workspace
+      - name: Clean Workspace
+        run: |
+          echo "Cleaning workspace..."
+          rm -rf flaskDBgender
+
+      # Stage 2: Checkout Repository
+      - name: Checkout Main Repository
+        uses: actions/checkout@v3
+
+      # Stage 3: Clone Additional Repository (if needed)
+      - name: Clone Dependency Repository
+        run: |
+          echo "Cloning external repository..."
+          git clone https://github.com/sagitab/flaskDBgender.git
+          cd flaskDBgender
+
+      # Stage 5: Build Docker Image
+      - name: Build Docker Image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
+          IMAGE_NAME: "sagisen/flaskaws:0.0.0.${{ github.run_number }}"
+        run: |
+          echo "Building Docker image..."
+          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+          docker build -t ${IMAGE_NAME} .
+
+      # Stage 8: Push Docker Image to Registry
+      - name: Push Docker Image to Registry
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
+          IMAGE_NAME: "sagisen/flaskaws:0.0.0.${{ github.run_number }}"
+        run: |
+          echo "Pushing Docker image to registry..."
+          docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
+          docker push ${IMAGE_NAME}
+
+      - name: Clean up Docker Image 
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
+          REPO_NAME: "flaskaws"
+          RUN_NUMBER: "${{ github.run_number }}"
+        run: |
+          DELETE_IMAGE=$(( $RUN_NUMBER-20 ))
+          curl -X DELETE -H "Authorization: Bearer $DOCKER_PASSWORD" \
+          "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$REPO_NAME/tags/0.0.0.$DELETE_IMAGE"
+      - name: Test
+        run: |
+          cat > .env << "ENV"  # Double quotes for expansion
+          MYSQL_HOST=mysql
+          MYSQL_USER=root
+          MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
+          MYSQL_DB=mydb
+          PORT=5002
+          ENV
+          GITHUB_RUN_NUMBER=${{ github.run_number }}
+          PREV_BUILD=47
+          sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml  # Double quotes for expansion
+
+          ls
+          docker images
+          docker compose up -d  # Ensure Docker Compose V2 is used
+          sleep 1
+          docker compose ps
+          sleep 30
+          i=0
+          max_attempts=5
+          
+          while [ $i -lt $max_attempts ]; do
+            echo "Attempt $((i + 1)) of $max_attempts..."
+            if curl -sSf http://localhost:5002 > /dev/null; then
+              echo "Flask app is reachable."
+              exit 0
+            else
+              echo "Flask app is not reachable. Retrying in 5 seconds..."
+              sleep 5
+              i=$((i + 1))
+            fi
+          done
+
+          echo "Flask app failed to respond after $max_attempts attempts."
+          exit 1
