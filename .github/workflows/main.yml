@@ -317,10 +317,10 @@ jobs:
           helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
             --namespace monitoring --create-namespace
 
-      - name: Wait for Monitoring Pods to Start
+          - name: Wait for Monitoring Pods to Start
         run: |
+          sleep 20
           kubectl wait --for=condition=available --timeout=300s deployment -n monitoring monitoring-grafana
-          kubectl wait --for=condition=available --timeout=300s deployment -n monitoring monitoring-kube-prometheus-sta-prometheus
 
       - name: Port Forward Grafana (for local access)
         run: |
