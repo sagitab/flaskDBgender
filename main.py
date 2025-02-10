@@ -4,12 +4,12 @@ import mysql.connector
 import os
 import random
 from werkzeug.utils import secure_filename
-from prometheus_client import start_http_server, Summary,Counter
+from prometheus_client import start_http_server, Summary,Gauge
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from flask import Response
 # Create a Prometheus metric (this is a simple timer)
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
-VISITOR_COUNTER = Counter("flask_app_visitors", "Number of visitors to the Flask app")
+VISITOR_COUNTER = Gauge('flask_app_visitor_count', 'Current number of visitors')
 #check
 app = Flask(__name__)
 
