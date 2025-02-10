@@ -18,7 +18,8 @@ mysql:
   passwordKey: MYSQL_PASSWORD
   databaseKey: MYSQL_DB
   secretName: mysql-secrets  # ✅ Add this to reference secrets in Helm templates
-
+metrics:
+  port: 8080  # Adjust the port where your Flask app exposes the /metrics endpoin
 service:
   type: LoadBalancer
   port: 80
