@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: flask-app-service
+  labels:
+    app: flask-app    # Add a label for filtering
 spec:
   selector:
     app: flask-app

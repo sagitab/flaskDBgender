@@ -4,11 +4,12 @@ import mysql.connector
 import os
 import random
 from werkzeug.utils import secure_filename
-from prometheus_client import start_http_server, Summary
+from prometheus_client import start_http_server, Summary,Counter
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from flask import Response
 # Create a Prometheus metric (this is a simple timer)
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
+VISITOR_COUNTER = Counter("flask_app_visitors", "Number of visitors to the Flask app")
 #check
 app = Flask(__name__)
 
@@ -120,7 +121,9 @@ def index():
     if updateCounter(counter):
         print("ok")
     else:
-        print("nooooo")    
+        print("nooooo")  
+    # Set Prometheus counter to match SQL counter (avoid double counting)
+    VISITOR_COUNTER._value.set(counter) 
     pic = getPic()
     return render_template('index.html', src=pic,visits=counter)
 @app.route('/add_img')
