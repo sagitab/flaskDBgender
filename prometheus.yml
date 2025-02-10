@@ -4,4 +4,4 @@ global:
 scrape_configs:
   - job_name: 'flask'
     static_configs:
-      - targets: ['flask-app:8080']  # Match the Flask app port
+      - targets: ['35.231.240.134:8000']  # Match the Flask app port
