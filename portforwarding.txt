@@ -1,0 +1,2 @@
+kubectl port-forward service/monitoring-grafana -n monitoring 3000:80
+kubectl port-forward service/prometheus-operated -n monitoring 9090:9090
