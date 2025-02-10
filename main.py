@@ -7,6 +7,8 @@ from werkzeug.utils import secure_filename
 from prometheus_client import start_http_server, Summary,Gauge
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from flask import Response
+import logging
+logging.basicConfig(level=logging.DEBUG)
 # Create a Prometheus metric (this is a simple timer)
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
 VISITOR_COUNTER = Gauge('flask_app_visitor_count', 'Current number of visitors')
@@ -116,16 +118,20 @@ API_URL = "https://api.genderize.io"
 @REQUEST_TIME.time()
 @app.route('/')
 def index():
-    counter=getCounter()
-    counter+=1
+    logging.debug("Request received")
+    counter = getCounter()
+    counter += 1
     if updateCounter(counter):
-        print("ok")
+        logging.debug("Counter updated")
     else:
-        print("nooooo")  
+        logging.debug("Failed to update counter")
+    
     # Set Prometheus counter to match SQL counter (avoid double counting)
     VISITOR_COUNTER._value.set(counter) 
     pic = getPic()
-    return render_template('index.html', src=pic,visits=counter)
+    logging.debug(f"Returning with {counter} visits and picture {pic}")
+    return render_template('index.html', src=pic, visits=counter)
+
 @app.route('/add_img')
 def add_img():
     return render_template('add_img.html')
