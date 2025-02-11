@@ -4,9 +4,6 @@ metadata:
   name: flask-app-service
   labels:
     app: flask-app  # Add a label for filtering
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "{{ .Values.metrics.port | default '8080' }}"  # Replace with your metrics port (e.g., 8080)
 spec:
   selector:
     app: flask-app
