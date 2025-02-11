@@ -6,12 +6,12 @@ metadata:
     app: flask-app  # Add a label for filtering
   annotations:
     prometheus.io/scrape: "true"
-    prometheus.io/port: {{ .Values.metrics.port }}  # Replace with your metrics port (e.g., 8080)
+    prometheus.io/port: "{{ .Values.metrics.port | default '8080' }}"  # Replace with your metrics port (e.g., 8080)
 spec:
   selector:
     app: flask-app
   ports:
-    - name: http  # Port name must match ServiceMonitor
+    - name: "http"  # Port name must match ServiceMonitor
       protocol: TCP
       port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}
