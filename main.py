@@ -207,5 +207,5 @@ def detect_gender():
 
 if __name__ == '__main__':
     port=app.config['PORT']
-    start_http_server(8000)  # This starts a Prometheus HTTP server on port 8000 (or any port you choose)
+    # start_http_server(8000)  # This starts a Prometheus HTTP server on port 8000 (or any port you choose)
     app.run(host='0.0.0.0',port=int(os.getenv('PORT',5000)) )

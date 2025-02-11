@@ -1,7 +1,0 @@
-global:
-  scrape_interval: 5s  # Collect metrics every 5 seconds
-
-scrape_configs:
-  - job_name: 'flask'
-    static_configs:
-      - targets: ['35.229.83.19:8000']  # Match the Flask app port

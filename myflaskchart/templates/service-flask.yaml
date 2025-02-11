@@ -3,16 +3,16 @@ kind: Service
 metadata:
   name: flask-app-service
   labels:
-    app: flask-app    # Add a label for filtering
+    app: flask-app  # Add a label for filtering
   annotations:
     prometheus.io/scrape: "true"
-    prometheus.io/port: "{{ .Values.metrics.port }}"  # Replace with your metrics port (e.g., 8080)
-spec:
+    prometheus.io/port: {{ .Values.metrics.port }}  # Replace with your metrics port (e.g., 8080)
 spec:
   selector:
     app: flask-app
   ports:
-  - protocol: TCP
-    port: {{ .Values.service.port }}
-    targetPort: {{ .Values.service.targetPort }}
+    - name: http  # Port name must match ServiceMonitor
+      protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
   type: {{ .Values.service.type }}
