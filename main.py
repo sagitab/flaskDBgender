@@ -126,8 +126,6 @@ def index():
     else:
         logging.debug("Failed to update counter")
     
-    # Set Prometheus counter to match SQL counter (avoid double counting)
-    VISITOR_COUNTER._value.set(counter) 
     pic = getPic()
     logging.debug(f"Returning with {counter} visits and picture {pic}")
     return render_template('index.html', src=pic, visits=counter)
@@ -167,6 +165,9 @@ def post_add_img():
 
 @app.route('/metrics')
 def metrics():
+    counter = getCounter()
+    # Set Prometheus counter to match SQL counter (avoid double counting)
+    VISITOR_COUNTER._value.set(counter) 
     # Return all metrics in Prometheus format
     return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
 
