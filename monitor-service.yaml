@@ -5,6 +5,7 @@ metadata:
   namespace: monitoring  # Replace with the actual namespace where Prometheus is installed
   labels:
     app: flask-app
+    release: prometheus
 spec:
   selector:
     matchLabels:

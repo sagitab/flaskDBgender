@@ -8,7 +8,8 @@ spec:
   selector:
     app: flask-app
   ports:
-    - protocol: TCP  # Indicate that it's a TCP connection
+    - name: "http"  # Port name must match ServiceMonitor
+      protocol: TCP  # Indicate that it's a TCP connection
       port: {{ .Values.service.port }}        # Port for the service to expose
       targetPort: {{ .Values.service.targetPort }}  # Port on the Flask app container
   type: {{ .Values.service.type }}  # LoadBalancer, ClusterIP, etc.
