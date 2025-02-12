@@ -315,5 +315,5 @@ jobs:
       - name: Install Monitoring Stack (Prometheus + Grafana)
         run: |
           helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
-            --namespace monitoring --create-namespace
+            --namespace monitoring --create-namespace -f promethues_values.yml
           
