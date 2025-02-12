@@ -1,14 +1,10 @@
-{{- if .Values.prometheus.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: flask-app-monitor
-  namespace: {{ .Values.prometheus.serviceMonitor.namespace | default "monitoring" }}  # Uses namespace from values.yaml
+  namespace: monitoring  # Replace with the actual namespace where Prometheus is installed
   labels:
     app: flask-app
-    {{- with .Values.prometheus.serviceMonitor.additionalLabels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
 spec:
   selector:
     matchLabels:
@@ -19,5 +15,4 @@ spec:
       interval: 15s
   namespaceSelector:
     matchNames:
-      - default
-{{- end }}
+      - default  # Ensure this matches the namespace where your Flask app runs

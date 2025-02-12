@@ -8,8 +8,9 @@ spec:
   selector:
     app: flask-app
   ports:
-    - name: "http"  # Port name must match ServiceMonitor
       protocol: TCP
       port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}
   type: {{ .Values.service.type }}
+
+

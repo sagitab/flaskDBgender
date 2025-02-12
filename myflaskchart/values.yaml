@@ -29,6 +29,5 @@ service:
 # Add this block to enable ServiceMonitor in Prometheus
 prometheus:
   serviceMonitor:
-    enabled: true
     additionalLabels: {}
     namespace: monitoring
