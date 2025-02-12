@@ -24,3 +24,11 @@ service:
   type: LoadBalancer
   port: 80
   targetPort: 5002
+
+
+# Add this block to enable ServiceMonitor in Prometheus
+prometheus:
+  serviceMonitor:
+    enabled: true
+    additionalLabels: {}
+    namespace: monitoring
