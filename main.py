@@ -8,6 +8,7 @@ from prometheus_client import start_http_server, Summary,Gauge
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from flask import Response
 import logging
+import base64
 logging.basicConfig(level=logging.DEBUG)
 # Create a Prometheus metric (this is a simple timer)
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
@@ -209,4 +210,18 @@ if __name__ == '__main__':
     port=app.config['PORT']
     # start_http_server(8000)  # This starts a Prometheus HTTP server on port 8000 (or any port you choose)
     # app.run(host='0.0.0.0',port=int(os.getenv('PORT',5000)) )
-    app.run(ssl_context=('cert.pem', 'key.pem'),port=int(os.getenv('PORT',5000)) )
+    
+    cert_pem = os.getenv('CERT_SSL')
+    key_pem = os.getenv('KEY_SSL')
+
+    # Write the decoded content to temporary files
+    with open('/tmp/cert.pem', 'wb') as cert_file:
+        cert_file.write(cert_pem)
+
+    with open('/tmp/key.pem', 'wb') as key_file:
+        key_file.write(key_pem)
+
+    # Run the app with SSL
+    app.run(ssl_context=('/tmp/cert.pem', '/tmp/key.pem'), port=int(os.getenv('PORT', 5000)))
+
+
