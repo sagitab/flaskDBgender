@@ -211,8 +211,8 @@ if __name__ == '__main__':
     # start_http_server(8000)  # This starts a Prometheus HTTP server on port 8000 (or any port you choose)
     # app.run(host='0.0.0.0',port=int(os.getenv('PORT',5000)) )
     
-    cert_pem = os.getenv('CERT_SSL', "").replace("\\n", "\n").encode()
-    key_pem = os.getenv('KEY_SSL', "").replace("\\n", "\n").encode()
+    cert_pem = os.getenv('CERT_SSL', "").replace("\\n", "\n")
+    key_pem = os.getenv('KEY_SSL', "").replace("\\n", "\n")
 
     # Write the decoded content to temporary files
     with open('/tmp/cert.pem', 'wb') as cert_file:
