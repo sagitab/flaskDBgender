@@ -45,3 +45,4 @@ yarn-error.log
 
 # Ignore static files not needed in the image (e.g., local uploads)
 static/uploads/
+*.pem

@@ -1,0 +1,17 @@
+grafana:
+  extraEnvVars:
+    - name: GF_SMTP_ENABLED
+      value: "true"
+    - name: GF_SMTP_HOST
+      value: "smtp.gmail.com:587"
+    - name: GF_SMTP_USER
+      value: "sagilavy01@gmail.com"
+    - name: GF_SMTP_FROM_ADDRESS
+      value: "sagilavy01@gmail.com"
+    - name: GF_SMTP_STARTTLS_POLICY
+      value: "OpportunisticStartTLS"
+    - name: GF_SMTP_PASSWORD
+      valueFrom:
+          secretKeyRef:
+            name: grafana-smtp-secret
+            key: smtp-password
