@@ -224,6 +224,10 @@ if __name__ == '__main__':
 
     with open('/tmp/key.pem', 'wb') as key_file:
         key_file.write(key_pem)
+    if os.access('/tmp/cert.pem', os.R_OK):
+        logging.debug("You have read permission for /tmp/cert.pem.")
+    else:
+        logging.debug("You do not have read permission for /tmp/cert.pem.")
     if os.path.isfile('/tmp/cert.pem'):
         logging.debug("/tmp/cert.pem is a file and exists.")
     else:
