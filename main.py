@@ -216,6 +216,7 @@ if __name__ == '__main__':
     
     cert_pem = os.getenv('CERT_SSL', "").encode()
     key_pem = os.getenv('KEY_SSL', "").encode()
+    logging.debug(cert_pem)
       # Ensure the /tmp/ directory exists
     os.makedirs("/tmp", exist_ok=True)
     # Write the decoded content to temporary files
