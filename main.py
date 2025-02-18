@@ -224,6 +224,10 @@ if __name__ == '__main__':
 
     with open('/tmp/key.pem', 'wb') as key_file:
         key_file.write(key_pem)
+    if os.path.isfile('/tmp/cert.pem'):
+        logging.debug("/tmp/cert.pem is a file and exists.")
+    else:
+        logging.debug("/tmp/cert.pem is not a valid file or does not exist.")
     try:
         # Run the app with SSL
         app.run(ssl_context=('/tmp/cert.pem', '/tmp/key.pem'), port=int(os.getenv('PORT', 5000)))
