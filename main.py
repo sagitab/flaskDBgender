@@ -213,7 +213,8 @@ if __name__ == '__main__':
     
     cert_pem = os.getenv('CERT_SSL', "").encode()
     key_pem = os.getenv('KEY_SSL', "").encode()
-
+      # Ensure the /tmp/ directory exists
+    os.makedirs("/tmp", exist_ok=True)
     # Write the decoded content to temporary files
     with open('/tmp/cert.pem', 'wb') as cert_file:
         cert_file.write(cert_pem)
