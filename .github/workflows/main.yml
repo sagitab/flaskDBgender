@@ -297,8 +297,14 @@ jobs:
 
           echo "Pushed updated Helm chart to Helm repo"
 
-      - name: Wait for GitHub Pages to update
+      - name: Wait for GitHub Pages to update & input secrets
         run: |
+          echo "Setting key.pem in values.yaml"
+          echo "KEY_SSL: |" >> myflaskchart/values.yaml
+          echo "${{ secrets.KEY_SSL }}" >> myflaskchart/values.yaml
+          echo "CERT_SSL: |" >> myflaskchart/values.yaml
+          echo "${{ secrets.CERT_SSL }}" >> myflaskchart/values.yaml
+          cat myflaskchart/values.yaml
           sleep 40  # Wait for 30 seconds to ensure the file is available
 
 
