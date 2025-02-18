@@ -226,6 +226,7 @@ if __name__ == '__main__':
     try:
         # Run the app with SSL
         app.run(ssl_context=('/tmp/cert.pem', '/tmp/key.pem'), port=int(os.getenv('PORT', 5000)))
+        print("ok")
     except Exception as e:
          print(str(e))
          raise  # Re-raise the exception so it shows up in the container logs
