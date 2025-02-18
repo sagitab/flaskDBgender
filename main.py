@@ -9,6 +9,7 @@ from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from flask import Response
 import logging
 import base64
+
 logging.basicConfig(level=logging.DEBUG)
 # Create a Prometheus metric (this is a simple timer)
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
@@ -226,9 +227,9 @@ if __name__ == '__main__':
     try:
         # Run the app with SSL
         app.run(ssl_context=('/tmp/cert.pem', '/tmp/key.pem'), port=int(os.getenv('PORT', 5000)))
-        print("ok")
+        logging.debug("ok")
     except Exception as e:
-         print(str(e))
+         logging.error(f"Error occurred: {str(e)}")
          raise  # Re-raise the exception so it shows up in the container logs
 
 
