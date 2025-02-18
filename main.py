@@ -221,8 +221,10 @@ if __name__ == '__main__':
 
     with open('/tmp/key.pem', 'wb') as key_file:
         key_file.write(key_pem)
-
-    # Run the app with SSL
-    app.run(ssl_context=('/tmp/cert.pem', '/tmp/key.pem'), port=int(os.getenv('PORT', 5000)))
+    try:
+        # Run the app with SSL
+        app.run(ssl_context=('/tmp/cert.pem', '/tmp/key.pem'), port=int(os.getenv('PORT', 5000)))
+    except Exception as e:
+         print(str(e))
 
 
