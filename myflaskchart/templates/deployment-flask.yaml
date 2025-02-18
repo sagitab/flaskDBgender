@@ -23,11 +23,11 @@ spec:
         - secretRef:
             name: mysql-secrets
       env:
-      - name: MYSQL_HOST
-        value: "{{ .Values.mysql.serviceName }}"
-      - name: PORT
-        value: "{{ .Values.service.targetPort }}"
-      - name: CERT_SSL
-        value: "{{ .Values.env.CERT_SSL }}"
-      - name: KEY_SSL
-        value: "{{ .Values.env.KEY_SSL }}"
+        - name: MYSQL_HOST
+          value: "{{ .Values.mysql.serviceName }}"
+        - name: PORT
+          value: "{{ .Values.service.targetPort }}"
+        - name: CERT_SSL
+          value: "{{ .Values.env.CERT_SSL }}"
+        - name: KEY_SSL
+          value: "{{ .Values.env.KEY_SSL }}"
