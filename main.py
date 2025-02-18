@@ -21,6 +21,8 @@ app = Flask(__name__)
 # app.config['MYSQL_USER'] = 'root'
 # app.config['MYSQL_PASSWORD'] = 'DataL123'
 # app.config['MYSQL_DB'] = 'mydb'
+app.config['DEBUG'] = True
+app.config['ENV'] = 'development'
 app.config['PORT'] = os.getenv("PORT")
 app.config['MYSQL_HOST'] = os.getenv("MYSQL_HOST") # Make sure this matches the service name in Docker Compose
 app.config['MYSQL_USER'] = os.getenv("MYSQL_USER")
@@ -226,5 +228,6 @@ if __name__ == '__main__':
         app.run(ssl_context=('/tmp/cert.pem', '/tmp/key.pem'), port=int(os.getenv('PORT', 5000)))
     except Exception as e:
          print(str(e))
+         raise  # Re-raise the exception so it shows up in the container logs
 
 
