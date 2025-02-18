@@ -22,7 +22,7 @@ spec:
         envFrom:
         - secretRef:
             name: mysql-secrets
-      env:
+        env:
         - name: MYSQL_HOST
           value: "{{ .Values.mysql.serviceName }}"
         - name: PORT
