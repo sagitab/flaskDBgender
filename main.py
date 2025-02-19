@@ -233,6 +233,11 @@ if __name__ == '__main__':
         logging.debug("/tmp/cert.pem is a file and exists.")
     else:
         logging.debug("/tmp/cert.pem is not a valid file or does not exist.")
+    logging.debug(f"CERT: {cert_pem}")
+    logging.debug(f"KEY: {key_pem}")
+
+    if not cert_pem or not key_pem:
+        logging.error("SSL certificates are empty! Check your environment variables.")
     try:
         # Run the app with SSL
         app.run(ssl_context=('/tmp/cert.pem', '/tmp/key.pem'), port=int(os.getenv('PORT', 5000)))
