@@ -257,9 +257,14 @@ jobs:
           VERSION="0.1.${{ github.run_number }}"
           sed -i "s/^version:.*/version: $VERSION/" myflaskchart/Chart.yaml
           cat myflaskchart/Chart.yaml  # Debugging: Check the updated version
-      - name: Update Docker Image in values.yaml
+      - name: Update Docker Image in values.yaml & input secrets
         run: |
           sed -i 's|tag:.*|tag: "0.0.0.${{ github.run_number }}"|' myflaskchart/values.yaml
+          echo "Setting key.pem in values.yaml"
+          echo "KEY_SSL: |" >> myflaskchart/values.yaml
+          echo "${{ secrets.KEY_SSL }}" >> myflaskchart/values.yaml
+          echo "CERT_SSL: |" >> myflaskchart/values.yaml
+          echo "${{ secrets.CERT_SSL }}" >> myflaskchart/values.yaml
           cat myflaskchart/values.yaml  # Debugging: Check the updated file
 
       - name: Package Helm Chart
@@ -297,14 +302,8 @@ jobs:
 
           echo "Pushed updated Helm chart to Helm repo"
 
-      - name: Wait for GitHub Pages to update & input secrets
+      - name: Wait for GitHub Pages to update 
         run: |
-          echo "Setting key.pem in values.yaml"
-          echo "KEY_SSL: |" >> myflaskchart/values.yaml
-          echo "${{ secrets.KEY_SSL }}" >> myflaskchart/values.yaml
-          echo "CERT_SSL: |" >> myflaskchart/values.yaml
-          echo "${{ secrets.CERT_SSL }}" >> myflaskchart/values.yaml
-          cat myflaskchart/values.yaml
           sleep 40  # Wait for 30 seconds to ensure the file is available
 
 
