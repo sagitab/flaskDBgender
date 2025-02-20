@@ -297,14 +297,8 @@ jobs:
 
           echo "Pushed updated Helm chart to Helm repo"
 
-      - name: Wait for GitHub Pages to update & input secrets
+      - name: Wait for GitHub Pages to update 
         run: |
-          echo "Setting key.pem in values.yaml"
-          echo "KEY_SSL: |" >> myflaskchart/values.yaml
-          echo "${{ secrets.KEY_SSL }}" >> myflaskchart/values.yaml
-          echo "CERT_SSL: |" >> myflaskchart/values.yaml
-          echo "${{ secrets.CERT_SSL }}" >> myflaskchart/values.yaml
-          cat myflaskchart/values.yaml
           sleep 40  # Wait for 30 seconds to ensure the file is available
 
 
@@ -322,7 +316,5 @@ jobs:
         run: |
           helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
             --namespace monitoring --create-namespace -f promethues_values.yml
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo update
           helm upgrade --install loki grafana/loki-stack -n monitoring --set loki.image.tag=2.9.3
           
