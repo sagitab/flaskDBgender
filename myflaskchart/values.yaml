@@ -30,3 +30,5 @@ service:
 prometheus:
   servicemonitor:
     enabled: true
+
+

@@ -260,11 +260,14 @@ jobs:
       - name: Update Docker Image in values.yaml & input secrets
         run: |
           sed -i 's|tag:.*|tag: "0.0.0.${{ github.run_number }}"|' myflaskchart/values.yaml
+          # Append the SSL keys correctly with proper line breaks
           echo "Setting key.pem in values.yaml"
           echo "KEY_SSL: |" >> myflaskchart/values.yaml
-          echo "${{ secrets.KEY_SSL }}" >> myflaskchart/values.yaml
+          printf "%s\n" "${{ secrets.KEY_SSL }}" >> myflaskchart/values.yaml
+
           echo "CERT_SSL: |" >> myflaskchart/values.yaml
-          echo "${{ secrets.CERT_SSL }}" >> myflaskchart/values.yaml
+          printf "%s\n" "${{ secrets.CERT_SSL }}" >> myflaskchart/values.yaml
+          sed -i 's/\r//' myflaskchart/values.yaml
           cat myflaskchart/values.yaml  # Debugging: Check the updated file
 
       - name: Package Helm Chart
