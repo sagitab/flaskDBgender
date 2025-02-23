@@ -7,17 +7,16 @@ image:
 
 mysql:
   image: mysql:8.0
-  database: mydb
-  user: root
-  password: "DataL123"
+  passwordKey: SQL_PASS  # Use the GitHub secret key for password
+  userKey: MYSQL_USER    # Use the GitHub secret key for user
+  databaseKey: MYSQL_DB  # Use the GitHub secret key for database
+  secretName: mysql-secrets  # Reference the secret
   serviceName: mysql-service
   replicas: 1
   port: 3306
   targetPort: 3306
   clusterIP: None
-  passwordKey: MYSQL_PASSWORD
-  databaseKey: MYSQL_DB
-  secretName: mysql-secrets  # ✅ Add this to reference secrets in Helm templates
+
 metrics:
   port: 8080  # Adjust the port where your Flask app exposes the /metrics endpoin
 service:

@@ -219,10 +219,6 @@ jobs:
 
       - name: Conect to gke kluster
         run: |
-          # GITHUB_RUN_NUMBER=${{ github.run_number }}
-          # PREV_BUILD=140 #to change
-          # sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" k8s.yaml  # Double quotes for expansion
-          
           # Retry mechanism for getting GKE credentials
           MAX_RETRIES=5
           RETRY_COUNT=0
@@ -302,10 +298,18 @@ jobs:
           sleep 40  # Wait for 30 seconds to ensure the file is available
 
 
-      # Run the upgrade/install command!!
+      # # Run the upgrade/install command!!
+      # - name: Deploy Helm Chart to GKE
+      #   run: |
+      #     helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
       - name: Deploy Helm Chart to GKE
         run: |
-          helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
+          helm upgrade --install myflaskchart \
+            https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz \
+            --namespace default \
+            --set mysql.password=${{ secrets.SQL_PASS }} \
+            --set mysql.user=${{ secrets.MYSQL_USER }} \
+            --set mysql.database=${{ secrets.MYSQL_DB }}
 
       - name: Add Prometheus Helm Repo
         run: |
