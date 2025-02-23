@@ -21,3 +21,13 @@
 .idea/
 *.tmproj
 .vscode/
+
+# Ignore compiled or temporary files
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore Helm-specific exclusions
+charts/
+values.yaml.lock

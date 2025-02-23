@@ -14,7 +14,7 @@ REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing requ
 VISITOR_COUNTER = Gauge('flask_app_visitor_count', 'Current number of visitors')
 #check 2
 
-# app = Flask(__name__)
+app = Flask(__name__)
 
 # MySQL Database Configuration
 # app.config['MYSQL_HOST'] = 'mysql' # Make sure this matches the service name in Docker Compose
