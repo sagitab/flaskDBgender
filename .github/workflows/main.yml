@@ -133,8 +133,8 @@ jobs:
           PORT=5002
           ENV
           GITHUB_RUN_NUMBER=${{ github.run_number }}
-          PREV_BUILD=47
-          sed -i "s/flaskaws:0.0.0\.$PREV_BUILD/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml  # Double quotes for expansion
+          sed -i "s/flaskaws:0.0.0\.[0-9]\+/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml
+
 
           ls
           docker images
