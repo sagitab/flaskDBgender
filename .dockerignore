@@ -45,3 +45,19 @@ yarn-error.log
 
 # Ignore static files not needed in the image (e.g., local uploads)
 static/uploads/
+
+# Ignore specific binaries and archives
+linux-amd64/
+helm-v3.17.0-linux-amd64.tar.gz
+
+# Ignore virtual environment
+venv/
+
+# Ignore old or unused code files
+deploy.py
+k8s.yaml
+setup.sh
+trash.py
+
+# Ignore Terraform-related files
+main.tf_aws.txt

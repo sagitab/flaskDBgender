@@ -40,3 +40,19 @@ crash.log
 terraform.rc
 delete_images.sh
 static/
+
+# Ignore specific binaries and archives
+linux-amd64/
+helm-v3.17.0-linux-amd64.tar.gz
+
+# Ignore virtual environment
+venv/
+
+# Ignore old or unused code files
+deploy.py
+k8s.yaml
+setup.sh
+trash.py
+
+# Ignore Terraform-related files
+main.tf_aws.txt

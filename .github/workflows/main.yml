@@ -68,97 +68,44 @@ jobs:
           DELETE_IMAGE=$(( $RUN_NUMBER-20 ))
           curl -X DELETE -H "Authorization: Bearer $DOCKER_PASSWORD" \
           "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$REPO_NAME/tags/0.0.0.$DELETE_IMAGE"
+     
 
-
-
-      # - name: Install Dependencies
+      # - name: Test
       #   run: |
-      #      sudo apt-get remove --purge -y containerd
-      #      sudo apt-get install -y make golang 
-      # - name: Clone and Build Docker Hub Tool
-      #   run: |
-      #       git clone https://github.com/docker/hub-tool.git
-      #       cd hub-tool
-      #       make
-      #       mkdir -p $HOME/.local/bin  # Create a local bin directory
-      #       mv bin/hub-tool $HOME/.local/bin/hub-tool  # Move to a path owned by runner
-      #       echo "$HOME/.local/bin" >> $GITHUB_PATH  # Add to PATH
-      #       hub-tool --version  # Verify installation
-        
-      # - name: Login to Docker Hub
-      #   env:
-      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
-      #   run: |
-      #     echo "$DOCKER_PASSWORD" | hub-tool login --username "$DOCKER_USERNAME" --password-stdin
-
-      # - name: Install Dependencies
-      #   run: |
-      #      sudo apt-get remove --purge -y containerd
-      #      sudo apt-get install -y make golang 
-      # - name: Clone and Build Docker Hub Tool
-      #   run: |
-      #       git clone https://github.com/docker/hub-tool.git
-      #       cd hub-tool
-      #       make
-      #       mkdir -p $HOME/.local/bin  # Create a local bin directory
-      #       mv bin/hub-tool $HOME/.local/bin/hub-tool  # Move to a path owned by runner
-      #       echo "$HOME/.local/bin" >> $GITHUB_PATH  # Add to PATH
-      #       hub-tool --version  # Verify installation    
-
-      # - name: delete-old-images
-      #   env:
-      #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
-      #     RUN_NUMBER: ${{ github.run_number }}
-      #   run: |
-      #     LAST_DEL=$((RUN_NUMBER - 10))
-      #     FIRST_DEL=$((RUN_NUMBER - 20))
-
-      #     if ((RUN_NUMBER % 10 == 0)); then
-      #       for i in $(seq $FIRST_DEL $LAST_DEL); do 
-      #         hub-tool tag rm -f sagisen/flaskaws:0.0.0.$i
-      #       done
-      #     fi
+      #     cat > .env << "ENV"  # Double quotes for expansion
+      #     MYSQL_HOST=mysql
+      #     MYSQL_USER=root
+      #     MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
+      #     MYSQL_DB=mydb
+      #     PORT=5002
+      #     ENV
+      #     GITHUB_RUN_NUMBER=${{ github.run_number }}
+      #     sed -i "s/flaskaws:0.0.0\.[0-9]\+/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml
 
 
-
-      - name: Test
-        run: |
-          cat > .env << "ENV"  # Double quotes for expansion
-          MYSQL_HOST=mysql
-          MYSQL_USER=root
-          MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
-          MYSQL_DB=mydb
-          PORT=5002
-          ENV
-          GITHUB_RUN_NUMBER=${{ github.run_number }}
-          sed -i "s/flaskaws:0.0.0\.[0-9]\+/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml
-
-
-          ls
-          docker images
-          docker compose up -d  # Ensure Docker Compose V2 is used
-          sleep 1
-          docker compose ps
-          sleep 30
-          i=0
-          max_attempts=5
+      #     ls
+      #     docker images
+      #     docker compose up -d  # Ensure Docker Compose V2 is used
+      #     sleep 1
+      #     docker compose ps
+      #     sleep 30
+      #     i=0
+      #     max_attempts=5
           
-          while [ $i -lt $max_attempts ]; do
-            echo "Attempt $((i + 1)) of $max_attempts..."
-            if curl -sSf http://localhost:5002 > /dev/null; then
-              echo "Flask app is reachable."
-              exit 0
-            else
-              echo "Flask app is not reachable. Retrying in 5 seconds..."
-              sleep 5
-              i=$((i + 1))
-            fi
-          done
+      #     while [ $i -lt $max_attempts ]; do
+      #       echo "Attempt $((i + 1)) of $max_attempts..."
+      #       if curl -sSf http://localhost:5002 > /dev/null; then
+      #         echo "Flask app is reachable."
+      #         exit 0
+      #       else
+      #         echo "Flask app is not reachable. Retrying in 5 seconds..."
+      #         sleep 5
+      #         i=$((i + 1))
+      #       fi
+      #     done
 
-          echo "Flask app failed to respond after $max_attempts attempts."
-          exit 1
+      #     echo "Flask app failed to respond after $max_attempts attempts."
+      #     exit 1
 
       - name: Authenticate with Google Cloud
         id: auth
