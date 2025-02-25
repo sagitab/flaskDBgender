@@ -5,7 +5,7 @@ metadata:
   labels:
     app: mysql
 spec:
-  replicas: {{ .Values.mysql.replicas }}
+  replicas: {{ .Values.mysql.replicas | int }}
   selector:
     matchLabels:
       app: mysql
