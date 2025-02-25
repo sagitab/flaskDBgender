@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 # Create a Prometheus metric (this is a simple timer)
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
 VISITOR_COUNTER = Gauge('flask_app_visitor_count', 'Current number of visitors')
-#check 2
+#check 3
 
 app = Flask(__name__)
 
