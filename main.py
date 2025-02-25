@@ -119,6 +119,7 @@ API_URL = "https://api.genderize.io"
 @REQUEST_TIME.time()
 @app.route('/')
 def index():
+    logging.debug(app.config['MYSQL_PASSWORD'])#to delete!!!!!!!!!!!!!!!!!!!!!!!
     logging.debug("Request received")
     counter = getCounter()
     counter += 1
