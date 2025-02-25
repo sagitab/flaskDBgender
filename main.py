@@ -121,7 +121,7 @@ API_URL = "https://api.genderize.io"
 def index():
     password_mysql=app.config['MYSQL_PASSWORD']
     if password_mysql ==None:
-         logging.debug("password is none")#to delete!!!!!!!!!!!!!!!!!!!!!!!
+         logging.debug("password is none")#to delete!!!!!!!!!!!!!!!!!!!!
     else:
          logging.debug("password is "+password_mysql)#to delete!!!!!!!!!!!!!!!!!!!!!!!
     logging.debug("Request received")
