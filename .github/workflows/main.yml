@@ -242,7 +242,7 @@ jobs:
 
       - name: Wait for GitHub Pages to update
         run: |
-          sleep 40  # Wait for 30 seconds to ensure the file is available
+          sleep 40  # Wait for 40 seconds to ensure the file is available
 
 
       # # Run the upgrade/install command!!
