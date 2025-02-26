@@ -259,13 +259,18 @@ jobs:
             --set mysql.database=${{ secrets.MYSQL_DB }} \
             --force
 
-
+      - name: Check if argocd namespace exists
+        run: |
+          if kubectl get namespace argocd; then
+            echo "Namespace argocd already exists, skipping creation."
+          else
+            kubectl create namespace argocd
+          fi
       - name: Install ArgoCD using Helm
         run: |
           helm repo add argo https://argoproj.github.io/argo-helm
           helm repo update
-          kubectl create namespace argocd || true
-          helm install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
+          helm upgrade --install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
       - name: apply argocd 
         run: |
           kubectl apply -f argo-app.yaml
