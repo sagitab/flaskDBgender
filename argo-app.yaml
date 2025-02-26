@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/sagitab/flaskDBgender'  # Correct repo URL
+    path: 'myflaskchart'  # Path to your Helm chart directory
+    targetRevision: HEAD
+    helm:
+      releaseName: my-app-release  # Optional: Set Helm release name
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default  # Specify the target namespace for the deployment
+  syncPolicy:
+    automated:
+      prune: true  # Automatically remove resources no longer defined in the repo
+      selfHeal: true  # Automatically sync if the application state diverges

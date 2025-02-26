@@ -7,9 +7,9 @@ image:
 
 mysql:
   image: mysql:8.0
-  passwordKey: MYSQL_ROOT_PASSWORD  # Use the GitHub secret key for password
-  userKey: MYSQL_USER    # Use the GitHub secret key for user
-  databaseKey: MYSQL_DB  # Use the GitHub secret key for database
+  passwordKey: "MYSQL_ROOT_PASSWORD"  # Use the GitHub secret key for password
+  userKey: "MYSQL_USER"    # Use the GitHub secret key for user
+  databaseKey: "MYSQL_DB"  # Use the GitHub secret key for database
   secretName: mysql-secrets  # Reference the secret
   serviceName: mysql-service
   replicas: 1

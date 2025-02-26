@@ -1,5 +1,7 @@
 kubectl port-forward service/monitoring-grafana -n monitoring 3000:80
 kubectl port-forward service/prometheus-operated -n monitoring 9090:9090
+kubectl port-forward svc/argocd-server -n argocd 8081:443
+
 gcloud container clusters get-credentials gke-cluster --region us-east1;
 http://loki:3100
 gcloud config set project tactile-visitor-449316-h6
