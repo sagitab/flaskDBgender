@@ -25,7 +25,7 @@ spec:
             secretKeyRef:
               name: {{ .Values.mysql.secretName }}  # Dynamically get secretName from values.yaml
               key: {{ .Values.mysql.passwordKey }}   # Dynamically get the key for password from values.yaml
-        - name: MYSQL_DATABASE
+        - name: MYSQL_DATABASE   
           valueFrom:
             secretKeyRef:
               name: {{ .Values.mysql.secretName }}  # Dynamically get secretName from values.yaml
