@@ -259,16 +259,16 @@ jobs:
             --set mysql.database=${{ secrets.MYSQL_DB }} \
             --force
 
-         
-      - name: Add ArgoCD Helm Repository
-        run: |
-          helm repo add argo https://argoproj.github.io/argo-helm
-          helm repo update
 
       - name: Install ArgoCD using Helm
         run: |
+          helm repo add argo https://argoproj.github.io/argo-helm
+          helm repo update
           kubectl create namespace argocd || true
           helm install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
+      - name: apply argocd 
+        run: |
+          kubectl apply -f argo-app.yaml
 
       # - name: Add Prometheus Helm Repo
       #   run: |

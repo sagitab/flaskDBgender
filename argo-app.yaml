@@ -11,6 +11,11 @@ spec:
     targetRevision: HEAD
     helm:
       releaseName: my-app-release  # Optional: Set Helm release name
+      values: | 
+        db:
+          user: root
+          password: DataL123
+          database: mydb
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default  # Specify the target namespace for the deployment
