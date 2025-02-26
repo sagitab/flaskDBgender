@@ -9,4 +9,4 @@ gcloud config set project tactile-visitor-449316-h6
 kubectl create secret generic mysql-secrets   --from-literal=MYSQL_ROOT_PASSWORD='DataL123'   --from-literal=MYSQL_USER='root'   --
 from-literal=MYSQL_PASSWORD='DataL123'   --from-literal=MYSQL_DATABASE='mydb'
 secret/mysql-secrets created
-##
+####
