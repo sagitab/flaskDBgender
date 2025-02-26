@@ -7,6 +7,7 @@ image:
 
 mysql:
   image: mysql:8.0
+  dbname: "mydb"
   passwordKey: "MYSQL_ROOT_PASSWORD"  # Use the GitHub secret key for password
   userKey: "MYSQL_USER"    # Use the GitHub secret key for user
   databaseKey: "MYSQL_DB"  # Use the GitHub secret key for database

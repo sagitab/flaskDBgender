@@ -4,9 +4,9 @@ metadata:
   name: mysql-initdb-config
 data:
   init.sql: |
-    CREATE DATABASE IF NOT EXISTS {{ .Values.mysql.databaseKey }};
+    CREATE DATABASE IF NOT EXISTS {{ .Values.mysql.dbname }};
 
-    USE {{ .Values.mysql.databaseKey }};
+    USE {{ .Values.mysql.dbname }};
 
     CREATE TABLE IF NOT EXISTS `imges` (
       `idimges` INT NOT NULL AUTO_INCREMENT,
