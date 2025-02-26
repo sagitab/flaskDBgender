@@ -256,7 +256,8 @@ jobs:
             --namespace default \
             --set mysql.password=${{ secrets.SQL_PASS }} \
             --set mysql.user=${{ secrets.MYSQL_USER }} \
-            --set mysql.database=${{ secrets.MYSQL_DB }}
+            --set mysql.database=${{ secrets.MYSQL_DB }} \
+            --force
 
       - name: Add Prometheus Helm Repo
         run: |
