@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 37.2.0  # Specify the version you want
+    helm:
+      values: |
+        grafana:
+          adminPassword: "admin"  # Set Grafana admin password
+          service:
+            type: LoadBalancer  # Expose Grafana via LoadBalancer
+        prometheus:
+          prometheusSpec:
+            retention: "15d"  # Optional: Set Prometheus retention period
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true  # Ensure the namespace is created
+      - PruneLast=true        # Prevent ArgoCD from deleting the namespace

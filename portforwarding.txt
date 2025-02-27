@@ -15,3 +15,5 @@ kubectl rollout restart deployment/flask-app-deployment
 kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 --decode
 
 #######
+argocd grafana prometheus ci cd
+kubectl create namespace monitoring
