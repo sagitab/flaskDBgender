@@ -257,6 +257,7 @@ jobs:
             --set mysql.password=${{ secrets.SQL_PASS }} \
             --set mysql.user=${{ secrets.MYSQL_USER }} \
             --set mysql.database=${{ secrets.MYSQL_DB }} \
+            --set mysql.rootPassword=${{ secrets.SQL_PASS }} \   # Add this line
             --force
 
       # - name: Check if argocd namespace exists
