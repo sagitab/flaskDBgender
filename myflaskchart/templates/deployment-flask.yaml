@@ -19,9 +19,9 @@ spec:
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         ports:
         - containerPort: {{ .Values.service.targetPort }}
-        envFrom:
-        - secretRef:
-            name: mysql-secrets
+        # envFrom:
+        # - secretRef:
+        #     name: mysql-secrets
         env:
         - name: MYSQL_HOST
           value: "{{ .Values.mysql.serviceName }}"
