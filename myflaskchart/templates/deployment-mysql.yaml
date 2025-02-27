@@ -20,16 +20,20 @@ spec:
         ports:
         - containerPort: {{ .Values.mysql.port }}
         env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Values.mysql.secretName }}  # Dynamically get secretName from values.yaml
-              key: {{ .Values.mysql.passwordKey }}   # Dynamically get the key for password from values.yaml
-        - name: MYSQL_DATABASE   
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Values.mysql.secretName }}  # Dynamically get secretName from values.yaml
-              key: {{ .Values.mysql.databaseKey }}  # Dynamically get the key for database from values.yaml
+          - name: MYSQL_ROOT_PASSWORD
+            value: "RGF0YUwxMjM="  # Hardcoded root password 
+          - name: MYSQL_DATABASE   
+            value: "bXlkYg=="  # Hardcoded database name
+        # - name: MYSQL_ROOT_PASSWORD
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: {{ .Values.mysql.secretName }}  # Dynamically get secretName from values.yaml
+        #       key: {{ .Values.mysql.passwordKey }}   # Dynamically get the key for password from values.yaml
+        # - name: MYSQL_DATABASE   
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: {{ .Values.mysql.secretName }}  # Dynamically get secretName from values.yaml
+        #       key: {{ .Values.mysql.databaseKey }}  # Dynamically get the key for database from values.yaml
         volumeMounts:
         - name: mysql-initdb
           mountPath: /docker-entrypoint-initdb.d/init.sql
