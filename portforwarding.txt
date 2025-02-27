@@ -10,4 +10,8 @@ gcloud container clusters get-credentials gke-cluster --region us-east1;
 kubectl create secret generic mysql-secrets   --from-literal=MYSQL_ROOT_PASSWORD='DataL123'   --from-literal=MYSQL_USER='root'   --
 from-literal=MYSQL_PASSWORD='DataL123'   --from-literal=MYSQL_DATABASE='mydb'
 secret/mysql-secrets created
+
+
+kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 --decode
+
 ######

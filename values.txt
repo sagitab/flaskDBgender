@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  repository: sagisen/flaskaws
+  tag: "0.0.0.114"
+  pullPolicy: IfNotPresent
+
+mysql:
+  image: mysql:8.0
+  dbname: "mydb"
+  passwordKey: "MYSQL_ROOT_PASSWORD"  # Use the GitHub secret key for password
+  userKey: "MYSQL_USER"    # Use the GitHub secret key for user
+  databaseKey: "MYSQL_DB"  # Use the GitHub secret key for database
+  secretName: mysql-secrets  # Reference the secret
+  serviceName: mysql-service
+  replicas: 1
+  port: 3306
+  targetPort: 3306
+  clusterIP: None
+
+metrics:
+  port: 8080  # Adjust the port where your Flask app exposes the /metrics endpoin
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 5002
+
+
+# Add this block to enable ServiceMonitor in Prometheus
+prometheus:
+  servicemonitor:
+    enabled: true
