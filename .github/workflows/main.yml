@@ -245,10 +245,12 @@ jobs:
           sleep 40  # Wait for 40 seconds to ensure the file is available
 
 
-      # Run the upgrade/install command!!
-      - name: Deploy Helm Chart to GKE
-        run: |
-          helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
+      # # Run the upgrade/install command!!
+      # - name: Deploy Helm Chart to GKE
+      #   run: |
+      #     helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
+
+
       # - name: Deploy Helm Chart to GKE
       #   run: |
       #     helm upgrade --install myflaskchart \
@@ -260,21 +262,21 @@ jobs:
       #       --set mysql.rootPassword=${{ secrets.SQL_PASS }} \   
       #       --force
 
-      # - name: Check if argocd namespace exists
-      #   run: |
-      #     if kubectl get namespace argocd; then
-      #       echo "Namespace argocd already exists, skipping creation."
-      #     else
-      #       kubectl create namespace argocd
-      #     fi
-      # - name: Install ArgoCD using Helm
-      #   run: |
-      #     helm repo add argo https://argoproj.github.io/argo-helm
-      #     helm repo update
-      #     helm upgrade --install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
-      # - name: apply argocd 
-      #   run: |
-      #     kubectl apply -f argo-app.yaml
+      - name: Check if argocd namespace exists
+        run: |
+          if kubectl get namespace argocd; then
+            echo "Namespace argocd already exists, skipping creation."
+          else
+            kubectl create namespace argocd
+          fi
+      - name: Install ArgoCD using Helm
+        run: |
+          helm repo add argo https://argoproj.github.io/argo-helm
+          helm repo update
+          helm upgrade --install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
+      - name: apply argocd 
+        run: |
+          kubectl apply -f argo-app.yaml
 
       # - name: Add Prometheus Helm Repo
       #   run: |
