@@ -6,13 +6,13 @@ image:
   pullPolicy: IfNotPresent
 mysql:
   image: mysql:8.0
-  dbname: bXlkYg==
-  dbpass: RGF0YUwxMjM=
-  dbhost: bXlzcWw=
-  dbuser: cm9vdA==
-  passwordKey: "MYSQL_ROOT_PASSWORD"  # Use the GitHub secret key for password
-  userKey: "MYSQL_USER"    # Use the GitHub secret key for user
-  databaseKey: "MYSQL_DB"  # Use the GitHub secret key for database
+  dbname: mydb  # decoded from bXlkYg==
+  dbpass: DataL123  # decoded from RGF0YUwxMjM=
+  dbhost: mysql
+  dbuser: root  # decoded from cm9vdA==
+  # passwordKey: "MYSQL_ROOT_PASSWORD"  # Use the GitHub secret key for password
+  # userKey: "MYSQL_USER"    # Use the GitHub secret key for user
+  # databaseKey: "MYSQL_DB"  # Use the GitHub secret key for database
   secretName: mysql-secrets  # Reference the secret
   serviceName: mysql-service
   replicas: 1
