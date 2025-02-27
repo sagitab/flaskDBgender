@@ -4,10 +4,12 @@ image:
   repository: sagisen/flaskaws
   tag: "0.0.0.114"
   pullPolicy: IfNotPresent
-
 mysql:
   image: mysql:8.0
   dbname: "mydb"
+  dbpass: "DataL123"
+  dbhost: "mysql"
+  dbuser: "root"
   passwordKey: "MYSQL_ROOT_PASSWORD"  # Use the GitHub secret key for password
   userKey: "MYSQL_USER"    # Use the GitHub secret key for user
   databaseKey: "MYSQL_DB"  # Use the GitHub secret key for database
