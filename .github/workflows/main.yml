@@ -245,20 +245,20 @@ jobs:
           sleep 40  # Wait for 40 seconds to ensure the file is available
 
 
-      # # Run the upgrade/install command!!
-      # - name: Deploy Helm Chart to GKE
-      #   run: |
-      #     helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
+      # Run the upgrade/install command!!
       - name: Deploy Helm Chart to GKE
         run: |
-          helm upgrade --install myflaskchart \
-            https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz \
-            --namespace default \
-            --set mysql.password=${{ secrets.SQL_PASS }} \
-            --set mysql.user=${{ secrets.MYSQL_USER }} \
-            --set mysql.database=${{ secrets.MYSQL_DB }} \
-            --set mysql.rootPassword=${{ secrets.SQL_PASS }} \   # Add this line
-            --force
+          helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
+      # - name: Deploy Helm Chart to GKE
+      #   run: |
+      #     helm upgrade --install myflaskchart \
+      #       https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz \
+      #       --namespace default \
+      #       --set mysql.password=${{ secrets.SQL_PASS }} \
+      #       --set mysql.user=${{ secrets.MYSQL_USER }} \
+      #       --set mysql.database=${{ secrets.MYSQL_DB }} \
+      #       --set mysql.rootPassword=${{ secrets.SQL_PASS }} \   
+      #       --force
 
       # - name: Check if argocd namespace exists
       #   run: |
