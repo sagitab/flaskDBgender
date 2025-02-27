@@ -30,8 +30,8 @@ spec:
         - name: MYSQL_DB
           value: "{{ .Values.mysql.dbname }}"
         - name: MYSQL_USER
-          value: "{{ .Values.service.dbuser }}"
+          value: "{{ .Values.mysql.dbuser }}"
         - name: MYSQL_PASSWORD
-          value: "{{ .Values.service.dbpass }}"
+          value: "{{ .Values.mysql.dbpass }}"
         - name: MYSQL_ROOT_PASSWORD
-          value: "{{ .Values.service.dbpass }}"
+          value: "{{ .Values.mysql.dbpass }}"

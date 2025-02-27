@@ -21,7 +21,7 @@ spec:
         - containerPort: {{ .Values.mysql.port }}
         env:
           - name: MYSQL_ROOT_PASSWORD
-            value: "{{ .Values.service.dbpass }}"  # Hardcoded root password 
+            value: "{{ .Values.mysql.dbpass }}"  # Hardcoded root password 
           - name: MYSQL_DATABASE   
             value: "{{ .Values.mysql.dbname }}"  # Hardcoded database name
         # - name: MYSQL_ROOT_PASSWORD
