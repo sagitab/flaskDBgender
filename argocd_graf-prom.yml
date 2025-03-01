@@ -11,6 +11,8 @@ spec:
     targetRevision: 37.2.0  # Specify the version you want
     helm:
       values: |
+        thanosRuler:
+          enabled: false
         grafana:
           adminPassword: "admin"  # Set Grafana admin password
           service:
@@ -26,5 +28,10 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true  # Ensure the namespace is created
-      - PruneLast=true        # Prevent ArgoCD from deleting the namespace
+      # - CreateNamespace=true  # Ensure the namespace is created
+      # - PruneLast=true        # Prevent ArgoCD from deleting the namespace
+      # - ServerSideApply=true
+      - CreateNamespace=true
+      - PruneLast=true
+      - Replace=true  # Enable replace sync strategy     
+    
