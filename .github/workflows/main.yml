@@ -276,6 +276,7 @@ jobs:
           helm upgrade --install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
       - name: apply argocd 
         run: |
+          cd argocd
           kubectl apply -f argo-app.yaml
       - name: Add Prometheus & Grafana Helm Repo (for ArgoCD to use)
         run: |
@@ -285,6 +286,7 @@ jobs:
 
       - name: Apply Monitoring App with kubectl
         run: |
+          cd argocd
           kubectl apply -f argocd_graf-prom.yml
 
 
