@@ -8,18 +8,19 @@ spec:
   source:
     repoURL: https://prometheus-community.github.io/helm-charts
     chart: kube-prometheus-stack
-    targetRevision: 37.2.0  # Specify the version you want
+    targetRevision: 37.2.0
     helm:
+      # releaseName: monitoring  # Important: This tells ArgoCD to track the existing Helm release!
       values: |
         thanosRuler:
           enabled: false
         grafana:
-          adminPassword: "admin"  # Set Grafana admin password
+          adminPassword: "admin"
           service:
-            type: LoadBalancer  # Expose Grafana via LoadBalancer
+            type: LoadBalancer
         prometheus:
           prometheusSpec:
-            retention: "15d"  # Optional: Set Prometheus retention period
+            retention: "15d"
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
@@ -28,10 +29,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      # - CreateNamespace=true  # Ensure the namespace is created
-      # - PruneLast=true        # Prevent ArgoCD from deleting the namespace
-      # - ServerSideApply=true
       - CreateNamespace=true
       - PruneLast=true
-      - Replace=true  # Enable replace sync strategy     
-    
+      - Replace=true
+      # - ServerSideApply=true  # Helps avoid conflicts with existing resources
