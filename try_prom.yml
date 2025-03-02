@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: monitoring
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    targetRevision: 50.3.0  # Ensure this version exists
+    chart: kube-prometheus-stack
+    helm:
+      values: |
+        prometheus:
+          prometheusSpec:
+            retention: "15d"  # Optional: Set retention period
+        thanosRuler:
+          enabled: false  # Disable Thanos if not needed
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring  # Ensure this namespace exists
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true  # Automatically create namespace

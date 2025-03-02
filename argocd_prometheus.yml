@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: prometheus
+  name: kube-prometheus-stack
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: https://prometheus-community.github.io/helm-charts
-    chart: kube-prometheus-stack
-    targetRevision: 37.2.0  # Specify the version you want
+    repoURL: https://github.com/prometheus-community/helm-charts
+    targetRevision: main  # Use the main branch for Git repository or specify a version tag
+    path: charts/kube-prometheus-stack  # Path to the chart directory in the GitHub repository
     helm:
       values: |
         prometheus:
@@ -27,3 +27,4 @@ spec:
       - CreateNamespace=true
       - PruneLast=true
       - Replace=true
+      - ServerSideApply=true
