@@ -53,10 +53,13 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_DELETE }}
           IMAGE_NAME: "sagisen/flaskaws:0.0.0.${{ github.run_number }}"
+          IMAGE_LATEST: "sagisen/flaskaws:latest"
         run: |
           echo "Pushing Docker image to registry..."
           docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
           docker push ${IMAGE_NAME}
+          docker tag ${IMAGE_LATEST} ${DOCKER_USERNAME}/${IMAGE_LATEST}
+          docker push ${IMAGE_LATEST}
 
       - name: Clean up Docker Image 
         env:
@@ -240,66 +243,105 @@ jobs:
 
           echo "Pushed updated Helm chart to Helm repo"
 
-      # - name: Wait for GitHub Pages to update
-      #   run: |
-      #     sleep 40  # Wait for 40 seconds to ensure the file is available
-
-
-      # # Run the upgrade/install command!!
-      # - name: Deploy Helm Chart to GKE
-      #   run: |
-      #     helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
-
-
-      # - name: Deploy Helm Chart to GKE
-      #   run: |
-      #     helm upgrade --install myflaskchart \
-      #       https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz \
-      #       --namespace default \
-      #       --set mysql.password=${{ secrets.SQL_PASS }} \
-      #       --set mysql.user=${{ secrets.MYSQL_USER }} \
-      #       --set mysql.database=${{ secrets.MYSQL_DB }} \
-      #       --set mysql.rootPassword=${{ secrets.SQL_PASS }} \   
-      #       --force
-
-      - name: Check if argocd namespace exists
+      - name: Wait for Helm Chart to Be Available
         run: |
-          if kubectl get namespace argocd; then
-            echo "Namespace argocd already exists, skipping creation."
-          else
-            kubectl create namespace argocd
-          fi
-      - name: Install ArgoCD using Helm
+          echo "Waiting for Helm chart to be available on GitHub Pages..."
+          
+          for i in {1..6}; do
+            STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}" https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz)
+
+            if [[ "$STATUS_CODE" -eq 200 ]]; then
+              echo "Helm chart is available!"
+              break
+            fi
+
+            echo "Helm chart not yet available. Retrying in 10 seconds..."
+            sleep 10
+          done
+
+
+
+      # Run the upgrade/install command!!
+      - name: Deploy Helm Chart to GKE
         run: |
-          helm repo add argo https://argoproj.github.io/argo-helm
-          helm repo update
-          helm upgrade --install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
-      - name: apply argocd 
+          helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
+
+
+      - name: Deploy Helm Chart to GKE
         run: |
-          cd argocd
-          kubectl apply -f argo-app.yaml
-      - name: Add Prometheus & Grafana Helm Repo (for ArgoCD to use)
+          helm upgrade --install myflaskchart \
+            https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz \
+            --namespace default \
+            --set mysql.password=${{ secrets.SQL_PASS }} \
+            --set mysql.user=${{ secrets.MYSQL_USER }} \
+            --set mysql.database=${{ secrets.MYSQL_DB }} \
+            --set mysql.rootPassword=${{ secrets.SQL_PASS }} \   
+            --force
+
+      - name: Get External IP
+        run: |
+          echo "Waiting for external IP..."
+          for i in {1..30}; do
+            EXTERNAL_IP=$(kubectl get svc flask-app-service -n default -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+            if [[ -n "$EXTERNAL_IP" ]]; then
+              echo "External IP: $EXTERNAL_IP"
+              echo "EXTERNAL_IP=$EXTERNAL_IP" >> $GITHUB_ENV
+              break
+            fi
+            sleep 10
+          done
+
+      #!!!!!!!!!!!!!!!!!!!!!argocd!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+      # - name: Check if argocd namespace exists
+      #   run: |
+      #     if kubectl get namespace argocd; then
+      #       echo "Namespace argocd already exists, skipping creation."
+      #     else
+      #       kubectl create namespace argocd
+      #     fi
+      # - name: Install ArgoCD using Helm
+      #   run: |
+      #     helm repo add argo https://argoproj.github.io/argo-helm
+      #     helm repo update
+      #     helm upgrade --install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
+      # - name: apply argocd 
+      #   run: |
+      #     cd argocd
+      #     kubectl apply -f argo-app.yaml
+      # - name: Add Prometheus & Grafana Helm Repo (for ArgoCD to use)
+      #   run: |
+      #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      #     helm repo add grafana https://grafana.github.io/helm-charts
+      #     helm repo update
+
+      # - name: Apply Monitoring App with kubectl
+      #   run: |
+      #     cd argocd
+      #     kubectl apply -f argocd_graf-prom.yml
+
+      #!!!!!!!!!!!!!!!!!!!!!!!monitor!!!!!!!!!!!!!!!!!!!!!!!!!!
+      - name: Add Prometheus Helm Repo
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
           helm repo add grafana https://grafana.github.io/helm-charts
           helm repo update
 
-      - name: Apply Monitoring App with kubectl
+      - name: Install Monitoring Stack (Prometheus + Grafana) + Loki if Not Installed
         run: |
-          cd argocd
-          kubectl apply -f argocd_graf-prom.yml
+          # Check if Prometheus is already installed
+          if helm list -n monitoring | grep -q "monitoring"; then
+            echo "Prometheus stack is already installed. Skipping installation."
+          else
+            echo "Installing Prometheus stack..."
+            helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+              --namespace monitoring --create-namespace -f promethues_values.yml
+          fi
 
-
-      # - name: Add Prometheus Helm Repo
-      #   run: |
-      #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-      #     helm repo update
- 
-
-      # - name: Install Monitoring Stack (Prometheus + Grafana) + loki
-      #   run: |
-      #     helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
-      #       --namespace monitoring --create-namespace -f promethues_values.yml
-      #     helm repo add grafana https://grafana.github.io/helm-charts
-      #     helm repo update
-      #     helm upgrade --install loki grafana/loki-stack -n monitoring --set loki.image.tag=2.9.3
+          # Check if Loki is already installed
+          if helm list -n monitoring | grep -q "loki"; then
+            echo "Loki is already installed. Skipping installation."
+          else
+            echo "Installing Loki..."
+            helm upgrade --install loki grafana/loki-stack -n monitoring --set loki.image.tag=2.9.3
+          fi
