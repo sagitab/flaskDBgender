@@ -262,21 +262,21 @@ jobs:
 
 
       # Run the upgrade/install command!!
-      - name: Deploy Helm Chart to GKE
-        run: |
-          helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
+      # - name: Deploy Helm Chart to GKE
+      #   run: |
+      #     helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
 
 
-      - name: Deploy Helm Chart to GKE
-        run: |
-          helm upgrade --install myflaskchart \
-            https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz \
-            --namespace default \
-            --set mysql.password=${{ secrets.SQL_PASS }} \
-            --set mysql.user=${{ secrets.MYSQL_USER }} \
-            --set mysql.database=${{ secrets.MYSQL_DB }} \
-            --set mysql.rootPassword=${{ secrets.SQL_PASS }} \   
-            --force
+      # - name: Deploy Helm Chart to GKE
+      #   run: |
+      #     helm upgrade --install myflaskchart \
+      #       https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz \
+      #       --namespace default \
+      #       --set mysql.password=${{ secrets.SQL_PASS }} \
+      #       --set mysql.user=${{ secrets.MYSQL_USER }} \
+      #       --set mysql.database=${{ secrets.MYSQL_DB }} \
+      #       --set mysql.rootPassword=${{ secrets.SQL_PASS }} \   
+      #       --force
 
       - name: Get External IP
         run: |
