@@ -176,7 +176,7 @@ jobs:
           while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
             echo "Attempt $((RETRY_COUNT+1)) to get GKE credentials..."
             
-            if gcloud container clusters get-credentials gke-cluster --region us-central1; then
+            if gcloud container clusters get-credentials gke-cluster --region us-central1-a; then
               echo "✅ Successfully got GKE credentials."
               break
             else
