@@ -58,7 +58,7 @@ jobs:
           echo "Pushing Docker image to registry..."
           docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
           docker push ${IMAGE_NAME}
-          docker tag ${IMAGE_LATEST} ${DOCKER_USERNAME}/${IMAGE_LATEST}
+          docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_LATEST}
           docker push ${IMAGE_LATEST}
 
       - name: Clean up Docker Image 
