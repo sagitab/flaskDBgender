@@ -19,3 +19,5 @@ Loki: Aggregates logs from the application, allowing for efficient searching and
 Grafana: Visualizes data from Prometheus and Loki, providing real-time dashboards to monitor application performance and logs.
 Security: Sensitive data and credentials, such as database passwords and API keys, are securely managed using GitHub Secrets and ignore files to prevent them from being exposed in version control.
 
+
+![Alt text](https://drive.google.com/file/d/1xh4xzFGIwok6LDPFQeqw5xX-J-AcRP0H)
