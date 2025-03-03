@@ -20,4 +20,4 @@ Grafana: Visualizes data from Prometheus and Loki, providing real-time dashboard
 Security: Sensitive data and credentials, such as database passwords and API keys, are securely managed using GitHub Secrets and ignore files to prevent them from being exposed in version control.
 
 
-![Alt text](https://drive.google.com/file/d/1xh4xzFGIwok6LDPFQeqw5xX-J-AcRP0H)
+![Alt text](https://drive.google.com/file/d/1xh4xzFGIwok6LDPFQeqw5xX-J-AcRP0H/view)
