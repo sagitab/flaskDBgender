@@ -1,6 +1,6 @@
 provider "google" {
   project = "tactile-visitor-449316-h6"
-  region  = "us-east1"
+  region  = "us-central1"
 }
 
 terraform {
@@ -13,7 +13,7 @@ terraform {
 
 resource "google_container_cluster" "primary" {
   name     = "gke-cluster"
-  location = "us-east1"
+  location = "us-central1-a"  # 🔹 Update zone
 
   remove_default_node_pool = true
   initial_node_count       = 1  # ✅ Required, even though it's removed immediately
