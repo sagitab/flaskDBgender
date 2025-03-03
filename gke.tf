@@ -14,7 +14,7 @@ terraform {
 resource "google_container_cluster" "primary" {
   name     = "gke-cluster"
   location = "us-central1-a"  # 🔹 Update zone
-  deletion_protection = false
+  deletion_protection = false # to allow delete
   remove_default_node_pool = true
   initial_node_count       = 1  # ✅ Required, even though it's removed immediately
 }
