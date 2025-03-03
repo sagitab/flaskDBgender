@@ -319,7 +319,7 @@ jobs:
       #     cd argocd
       #     kubectl apply -f argocd_graf-prom.yml
 
-      #!!!!!!!!!!!!!!!!!!!!!!!monitor!!!!!!!!!!!!!!!!!!!!!!!!!!
+      #!!!!!!!!!!!!!!!!!!!!!!!monitor!!!!!!!!!!!!!!!!!!!!!!!!!!!
       - name: Add Prometheus Helm Repo
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
