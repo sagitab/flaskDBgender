@@ -59,7 +59,7 @@ jobs:
           docker tag ${IMAGE_NAME} ${DOCKER_USERNAME}/${IMAGE_NAME}
           docker push ${IMAGE_NAME}
           docker tag ${IMAGE_NAME} ${IMAGE_LATEST}
-          docker push ${IMAGE_LATEST}do
+          docker push ${IMAGE_LATEST}
           
       - name: Clean up Docker Image 
         env:
