@@ -65,8 +65,8 @@ def getPic():
         # Return the first image URL from the data
         #pic = data[0]["url"]
             # Get a random item
-        #random_item = random.choice(pic_urls)
-        random_item=pic_urls[-1]
+        random_item = random.choice(pic_urls)
+        # random_item=pic_urls[-1]
         pic=random_item
         if not pic.startswith("https://"):
             pic = os.path.join("uploads", pic)
