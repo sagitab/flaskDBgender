@@ -1,5 +1,5 @@
 gcloud config set project tactile-visitor-449316-h6
-gcloud container clusters get-credentials gke-cluster --region us-east1;
+gcloud container clusters get-credentials gke-cluster --region us-central1-a;
 
 
 kubectl port-forward service/monitoring-grafana -n monitoring 3000:80

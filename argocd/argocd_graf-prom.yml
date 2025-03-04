@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://prometheus-community.github.io/helm-charts
     chart: kube-prometheus-stack
-    targetRevision: 37.2.0
+    targetRevision: 66.3.1
     helm:
       # releaseName: monitoring  # Important: This tells ArgoCD to track the existing Helm release!
       values: |
@@ -32,4 +32,4 @@ spec:
       - CreateNamespace=true
       - PruneLast=true
       - Replace=true
-      # - ServerSideApply=true  # Helps avoid conflicts with existing resources
+      - ServerSideApply=true  # Helps avoid conflicts with existing resources

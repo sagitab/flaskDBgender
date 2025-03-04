@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/prometheus-community/helm-charts
-    targetRevision: main  # Use the main branch for Git repository or specify a version tag
+    targetRevision: 25.8.0  # Set the desired version (25.8.0)
     path: charts/kube-prometheus-stack  # Path to the chart directory in the GitHub repository
     helm:
       values: |
