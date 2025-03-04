@@ -56,3 +56,4 @@ trash.py
 
 # Ignore Terraform-related files
 main.tf_aws.txt
+portforwarding.txt
