@@ -1,24 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kube-prometheus-stack
+  name: prometheus
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/prometheus-community/helm-charts
-    targetRevision: v25.8.0  # Set the desired version (25.8.0)
-    path: charts/kube-prometheus-stack  # Path to the chart directory in the GitHub repository
+    targetRevision: 25.8.0  # or specify a version tag like v25.7.0
+    path: charts/prometheus  # Path to the Prometheus chart in the repository
     helm:
       values: |
         prometheus:
           prometheusSpec:
-            retention: "15d"  # Optional: Set Prometheus retention period
-        thanosRuler:
-          enabled: false
+            retention: "15d"  # Optional: Set retention period for Prometheus data
+          # Add additional configuration if needed for your Prometheus instance
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring
+    namespace: monitoring  # Ensure you have this namespace created
   syncPolicy:
     automated:
       prune: true
