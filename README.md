@@ -18,6 +18,7 @@ Sensitive data and credentials are securely handled using **GitHub Secrets**.
 - **GKE & Kubernetes**: The app is deployed to **GKE**, and **Helm charts** simplify deployment management.
 
 ---
+![Alt text](devops-project%20(1).jpg)
 
 ## 📌 Setup Instructions
 
