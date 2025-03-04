@@ -21,3 +21,91 @@ Security: Sensitive data and credentials, such as database passwords and API key
 
 
 ![Alt text](https://drive.google.com/file/d/1xh4xzFGIwok6LDPFQeqw5xX-J-AcRP0H/view)
+
+Setup Instructions
+Prerequisites:
+Ensure you have the following installed:
+
+Docker (for containerization)
+kubectl (Kubernetes CLI)
+Helm (Kubernetes package manager)
+Terraform (for infrastructure provisioning)
+Google Cloud SDK (for GKE authentication)
+GitHub CLI (for managing GitHub Actions)
+Steps to Set Up Locally:
+Clone the Repository:
+
+bash
+Copy
+Edit
+git clone https://github.com/your-repo-name.git
+cd your-repo-name!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Build and Run the Application Locally:
+
+bash
+Copy
+Edit
+docker-compose up -d
+Test the Application Locally:
+Access the Flask app at:
+
+arduino
+Copy
+Edit
+http://localhost:5002/
+CI/CD Workflow Explanation
+Continuous Integration (CI)
+The GitHub Actions workflow is triggered on every commit.
+The pipeline builds the Docker image and runs automated tests.
+If tests pass, the image is pushed to Docker Hub or Google Artifact Registry.
+Continuous Deployment (CD)
+Terraform provisions the GKE cluster.
+The Helm chart is used to deploy the application to Kubernetes.
+
+Authenticate with GCP & Configure GKE:
+
+bash
+Copy
+Edit
+gcloud auth login
+gcloud container clusters get-credentials cluster --region us-central1
+Apply Terraform to Provision Infrastructure:
+
+bash
+Copy
+Edit
+terraform init
+terraform apply -auto-approve
+Deploy Application with Helm:
+
+bash
+Copy
+Edit
+helm install flask-app ./helm-chart
+Verify Deployment:
+
+bash
+Copy
+Edit
+kubectl get pods
+kubectl get services
+Security Considerations
+Secrets Management: All sensitive data (API keys, database credentials) are stored securely in GitHub Secrets and never committed to the repository.
+ignores files: .dockerignor .gitignore .helmignore
+Monitoring Setup
+
+Collects and centralizes logs from application pods.
+Grafana (Visualization):
+Port forward Grafana:
+bash
+Copy
+Edit
+kubectl port-forward svc/grafana 3000:80
+Open Grafana Dashboard:
+arduino
+Copy
+Edit
+http://localhost:3000
+Default login:
+User: admin
+Password: prom-operator (Change immediately after logging in).
