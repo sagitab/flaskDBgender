@@ -125,7 +125,7 @@ kubectl get services
 #### Port forward Grafana:
 
 ```
-kubectl port-forward svc/grafana 3000:80
+kubectl port-forward service/monitoring-grafana -n monitoring 3000:80
 ```
 
 #### Open Grafana Dashboard:
