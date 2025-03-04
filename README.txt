@@ -1,4 +1,4 @@
-DevOps Project
+### DevOps Project
 This project involves a Flask-based web application that is containerized with Docker. The application is deployed in Google Kubernetes Engine (GKE), with automated CI/CD pipelines managed using GitHub Actions. The pipeline handles building and pushing the Docker image, testing, and managing image lifecycle. The application is monitored using Prometheus for data collection, Loki for log aggregation, and Grafana for real-time data visualization. Sensitive data and credentials are securely handled using GitHub Secrets.
 
 Key Features:
