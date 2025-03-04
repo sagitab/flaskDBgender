@@ -73,42 +73,42 @@ jobs:
           "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$REPO_NAME/tags/0.0.0.$DELETE_IMAGE"
      
 
-      # - name: Test
-      #   run: |
-      #     cat > .env << "ENV"  # Double quotes for expansion
-      #     MYSQL_HOST=mysql
-      #     MYSQL_USER=root
-      #     MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
-      #     MYSQL_DB=mydb
-      #     PORT=5002
-      #     ENV
-      #     GITHUB_RUN_NUMBER=${{ github.run_number }}
-      #     sed -i "s/flaskaws:0.0.0\.[0-9]\+/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml
+      - name: Test
+        run: |
+          cat > .env << "ENV"  # Double quotes for expansion
+          MYSQL_HOST=mysql
+          MYSQL_USER=root
+          MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
+          MYSQL_DB=mydb
+          PORT=5002
+          ENV
+          GITHUB_RUN_NUMBER=${{ github.run_number }}
+          sed -i "s/flaskaws:0.0.0\.[0-9]\+/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml
 
 
-      #     ls
-      #     docker images
-      #     docker compose up -d  # Ensure Docker Compose V2 is used
-      #     sleep 1
-      #     docker compose ps
-      #     sleep 30
-      #     i=0
-      #     max_attempts=5
+          ls
+          docker images
+          docker compose up -d  # Ensure Docker Compose V2 is used
+          sleep 1
+          docker compose ps
+          sleep 30
+          i=0
+          max_attempts=5
           
-      #     while [ $i -lt $max_attempts ]; do
-      #       echo "Attempt $((i + 1)) of $max_attempts..."
-      #       if curl -sSf http://localhost:5002 > /dev/null; then
-      #         echo "Flask app is reachable."
-      #         exit 0
-      #       else
-      #         echo "Flask app is not reachable. Retrying in 5 seconds..."
-      #         sleep 5
-      #         i=$((i + 1))
-      #       fi
-      #     done
+          while [ $i -lt $max_attempts ]; do
+            echo "Attempt $((i + 1)) of $max_attempts..."
+            if curl -sSf http://localhost:5002 > /dev/null; then
+              echo "Flask app is reachable."
+              exit 0
+            else
+              echo "Flask app is not reachable. Retrying in 5 seconds..."
+              sleep 5
+              i=$((i + 1))
+            fi
+          done
 
-      #     echo "Flask app failed to respond after $max_attempts attempts."
-      #     exit 1
+          echo "Flask app failed to respond after $max_attempts attempts."
+          exit 1
 
       - name: Authenticate with Google Cloud
         id: auth
@@ -267,16 +267,16 @@ jobs:
           helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
 
 
-      - name: Deploy Helm Chart to GKE
-        run: |
-          helm upgrade --install myflaskchart \
-            https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz \
-            --namespace default \
-            # --set mysql.password=${{ secrets.SQL_PASS }} \
-            # --set mysql.user=${{ secrets.MYSQL_USER }} \
-            # --set mysql.database=${{ secrets.MYSQL_DB }} \
-            # --set mysql.rootPassword=${{ secrets.SQL_PASS }} \   
-            # --force
+      # - name: Deploy Helm Chart to GKE
+      #   run: |
+      #     helm upgrade --install myflaskchart \
+      #       https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz \
+      #       --namespace default \
+      #       # --set mysql.password=${{ secrets.SQL_PASS }} \
+      #       # --set mysql.user=${{ secrets.MYSQL_USER }} \
+      #       # --set mysql.database=${{ secrets.MYSQL_DB }} \
+      #       # --set mysql.rootPassword=${{ secrets.SQL_PASS }} \   
+      #       # --force
 
       - name: Get External IP
         run: |
@@ -290,34 +290,6 @@ jobs:
             fi
             sleep 10
           done
-
-      #!!!!!!!!!!!!!!!!!!!!!argocd!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!
-      # - name: Check if argocd namespace exists
-      #   run: |
-      #     if kubectl get namespace argocd; then
-      #       echo "Namespace argocd already exists, skipping creation."
-      #     else
-      #       kubectl create namespace argocd
-      #     fi
-      # - name: Install ArgoCD using Helm
-      #   run: |
-      #     helm repo add argo https://argoproj.github.io/argo-helm
-      #     helm repo update
-      #     helm upgrade --install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
-      # - name: apply argocd 
-      #   run: |
-      #     cd argocd
-      #     kubectl apply -f argo-app.yaml
-      # - name: Add Prometheus & Grafana Helm Repo (for ArgoCD to use)
-      #   run: |
-      #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-      #     helm repo add grafana https://grafana.github.io/helm-charts
-      #     helm repo update
-
-      # - name: Apply Monitoring App with kubectl
-      #   run: |
-      #     cd argocd
-      #     kubectl apply -f argocd_graf-prom.yml
 
       #!!!!!!!!!!!!!!!!!!!!!!!monitor!!!!!!!!!!!!!!!!!!!!!!!!!!!
       - name: Add Prometheus Helm Repo
@@ -345,3 +317,30 @@ jobs:
             echo "Installing Loki..."
             helm upgrade --install loki grafana/loki-stack -n monitoring --set loki.image.tag=2.9.3
           fi
+  #!!!!!!!!!!!!!!!!!!!!!argocd!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!
+      # - name: Check if argocd namespace exists
+      #   run: |
+      #     if kubectl get namespace argocd; then
+      #       echo "Namespace argocd already exists, skipping creation."
+      #     else
+      #       kubectl create namespace argocd
+      #     fi
+      # - name: Install ArgoCD using Helm
+      #   run: |
+      #     helm repo add argo https://argoproj.github.io/argo-helm
+      #     helm repo update
+      #     helm upgrade --install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
+      # - name: apply argocd 
+      #   run: |
+      #     cd argocd
+      #     kubectl apply -f argo-app.yaml
+      # - name: Add Prometheus & Grafana Helm Repo (for ArgoCD to use)
+      #   run: |
+      #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      #     helm repo add grafana https://grafana.github.io/helm-charts
+      #     helm repo update
+
+      # - name: Apply Monitoring App with kubectl
+      #   run: |
+      #     cd argocd
+      #     kubectl apply -f argocd_graf-prom.yml
