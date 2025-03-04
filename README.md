@@ -37,8 +37,8 @@ Ensure you have the following installed:
 #### Clone the Repository
 
 ```
-git clone https://github.com/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/sagitab/flaskDBgender.git
+cd flaskDBgender
 ```
 
 #### Build and Run the Application Locally
@@ -52,7 +52,7 @@ docker-compose up -d
 Access the Flask app at:
 
 ```
-http://localhost:5002/
+http://localhost:5002
 ```
 
 ---
@@ -78,7 +78,7 @@ http://localhost:5002/
 
 ```
 gcloud auth login
-gcloud container clusters get-credentials cluster --region us-central1
+gcloud container clusters get-credentials cluster --region us-central1-a
 ```
 
 ### Apply Terraform to Provision Infrastructure
