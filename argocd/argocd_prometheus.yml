@@ -7,21 +7,27 @@ spec:
   project: default
   source:
     repoURL: https://github.com/prometheus-community/helm-charts
-    targetRevision: 25.8.0  # or specify a version tag like v25.7.0
-    path: charts/prometheus  # Path to the Prometheus chart in the repository
+    targetRevision: main  # or a specific version like 'v25.7.0'
+    path: charts/prometheus  # Path to the Prometheus chart in the GitHub repository
     helm:
       values: |
         prometheus:
           prometheusSpec:
             retention: "15d"  # Optional: Set retention period for Prometheus data
-          # Add additional configuration if needed for your Prometheus instance
+            resources:
+              requests:
+                memory: "400Mi"
+                cpu: "200m"
+              limits:
+                memory: "800Mi"
+                cpu: "500m"
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring  # Ensure you have this namespace created
+    namespace: monitoring  # Ensure the monitoring namespace exists or let ArgoCD create it
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true  # Automatically remove resources if the application is deleted
+      selfHeal: true  # Automatically re-sync the application if it's out of sync
     syncOptions:
       - CreateNamespace=true
       - PruneLast=true
