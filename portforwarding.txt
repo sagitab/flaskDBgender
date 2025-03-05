@@ -1,0 +1,31 @@
+gcloud config set project tactile-visitor-449316-h6
+gcloud container clusters get-credentials gke-cluster --region us-central1-a;
+
+
+kubectl port-forward service/monitoring-grafana -n monitoring 3000:80
+kubectl port-forward service/prometheus-operated -n monitoring 9090:9090
+kubectl port-forward svc/argocd-server -n argocd 8081:443
+prometheus
+http://monitoring-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+
+loki
+http://loki:3100
+
+kubectl create secret generic mysql-secrets   --from-literal=MYSQL_ROOT_PASSWORD='DataL123'   --from-literal=MYSQL_USER='root'   --
+from-literal=MYSQL_PASSWORD='DataL123'   --from-literal=MYSQL_DATABASE='mydb'
+secret/mysql-secrets created
+kubectl rollout restart deployment/flask-app-deployment
+
+kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 --decode
+
+########
+argocd grafana prometheus ci cd
+
+install argocd
+and login
+
+kubectl apply -f argocd_graf-prom.yml
+argocd app sync monitoring
+kubectl get all -n monitoring
+
+
