@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/prometheus-community/helm-charts
-    targetRevision: main  # or a specific version like 'v25.7.0'
+    targetRevision: 25.8.0  # or a specific version like 'v25.7.0'
     path: charts/prometheus  # Path to the Prometheus chart in the GitHub repository
     helm:
       values: |
