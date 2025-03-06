@@ -3,39 +3,23 @@ kind: Application
 metadata:
   name: prometheus
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/compare-options: IgnoreExtraneous
 spec:
   project: default
   source:
     repoURL: https://prometheus-community.github.io/helm-charts
-    targetRevision: 25.8.0  # or a specific version like 'v25.7.0'
-    chart: prometheus # Path to the Prometheus chart in the GitHub repository
+    targetRevision: 25.8.0  # Use the correct Helm chart version
+    chart: prometheus       # Specify the Helm chart name
     helm:
       values: |
-        prometheus:
-          prometheusSpec:
-            retention: "15d"  # Optional: Set retention period for Prometheus data
-            resources:
-              requests:
-                memory: "400Mi"
-                cpu: "200m"
-              limits:
-                memory: "800Mi"
-                cpu: "500m"
-          server:
-            service:
-              type: LoadBalancer  # Set the service type to LoadBalancer
-              port: 9090          # Ensure it's using the correct port for Prometheus
+        server:
+          service:
+            type: LoadBalancer  # Expose Prometheus with a LoadBalancer
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring  # Ensure the monitoring namespace exists or let ArgoCD create it
+    namespace: monitoring
   syncPolicy:
     automated:
-      prune: true  # Automatically remove resources if the application is deleted
-      selfHeal: true  # Automatically re-sync the application if it's out of sync
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - PruneLast=true
-      - Replace=true
-      - ServerSideApply=true
