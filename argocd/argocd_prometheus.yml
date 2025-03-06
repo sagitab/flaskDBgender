@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/prometheus-community/helm-charts
+    repoURL: https://prometheus-community.github.io/helm-charts
     targetRevision: 25.8.0  # or a specific version like 'v25.7.0'
     path: charts/prometheus  # Path to the Prometheus chart in the GitHub repository
     helm:
