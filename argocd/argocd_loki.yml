@@ -9,16 +9,14 @@ spec:
     namespace: monitoring  # Namespace to deploy Loki into
     server: 'https://kubernetes.default.svc'
   source:
-    chart: loki
-    repoURL: https://charts.grafana.com/loki-stack
-    targetRevision: 2.9.3  # Use version 2.9.3 of Loki
+    chart: loki-stack
+    repoURL: https://grafana.github.io/helm-charts  # Correct repository URL
+    targetRevision: 2.9.3  # Version 2.9.3 of Loki
     helm:
       values: |
         loki:
           image:
-            tag: "2.9.3"  # Specify the image version you want
-      valueFiles:
-        - "./log/loki-values.yaml"  # Path to your custom values.yaml
+            tag: "2.9.3"  # Specify the image version
   syncPolicy:
     automated:
       prune: true
