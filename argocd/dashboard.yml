@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: node-cluster-cpu-memory-dashboard
+  namespace: monitoring  # Ensure this matches Grafana's namespace
+  labels:
+    grafana_dashboard: "1"
+data:
+  node-cluster-cpu-memory-dashboard.json: |
+    {
+      "title": "Node and Cluster CPU & Memory Usage",
+      "panels": [
+        {
+          "title": "Cluster CPU Usage",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "avg(rate(node_cpu_seconds_total{mode='user'}[5m])) by (instance)",
+              "refId": "A"
+            },
+            {
+              "expr": "avg(rate(node_cpu_seconds_total{mode='system'}[5m])) by (instance)",
+              "refId": "B"
+            }
+          ],
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 2
+            }
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          }
+        },
+        {
+          "title": "Cluster Memory Usage",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "avg(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / avg(node_memory_MemTotal_bytes) * 100",
+              "refId": "C"
+            }
+          ],
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 2
+            }
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          }
+        },
+        {
+          "title": "Node CPU Usage by Node",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "avg(rate(node_cpu_seconds_total{mode='user'}[5m])) by (instance)",
+              "refId": "D"
+            }
+          ],
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 2
+            }
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          }
+        },
+        {
+          "title": "Node Memory Usage by Node",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes",
+              "refId": "E"
+            }
+          ],
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "decimals": 0
+            }
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          }
+        }
+      ],
+      "schemaVersion": 40,
+      "version": 1,
+      "refresh": "5m",
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      }
+    }

@@ -345,3 +345,4 @@ jobs:
           cd argocd
           kubectl apply -f argocd_prometheus.yml
           kubectl apply -f argocd_grafana.yml
+          kubectl apply -f dashboard.yml 

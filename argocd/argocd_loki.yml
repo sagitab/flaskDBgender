@@ -2,20 +2,25 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: loki
-  namespace: argocd
+  namespace: argocd  # ArgoCD's namespace
 spec:
-  project: default
-  source:
-    repoURL: "https://github.com/sagitab/flaskDBgender.git"
-    path: "argocd"
-    targetRevision: "main"
-    helm:
-      valueFiles:
-        - "./log/loki-values.yaml"
   destination:
-    server: https://kubernetes.default.svc
-    namespace: monitoring
+    name: ''
+    namespace: monitoring  # Namespace to deploy Loki into
+    server: 'https://kubernetes.default.svc'
+  source:
+    chart: loki
+    repoURL: https://charts.grafana.com/loki-stack
+    targetRevision: 2.9.3  # Use version 2.9.3 of Loki
+    helm:
+      values: |
+        loki:
+          image:
+            tag: "2.9.3"  # Specify the image version you want
+      valueFiles:
+        - "./log/loki-values.yaml"  # Path to your custom values.yaml
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+  project: default

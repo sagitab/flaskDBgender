@@ -10,10 +10,14 @@ spec:
     chart: grafana
     targetRevision: 7.3.4
     helm:
-      values: |
-        adminPassword: "admin"
-        service:
-          type: LoadBalancer 
+         values: |
+          adminPassword: "admin"
+          service:
+            type: LoadBalancer
+          sidecar:
+            dashboards:
+              enabled: true
+              label: grafana_dashboard  # Ensures dashboards from ConfigMaps are loaded
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
