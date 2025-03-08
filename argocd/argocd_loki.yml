@@ -1,24 +1,104 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: loki
-  namespace: argocd  # ArgoCD's namespace
+  name: loki-stack-charts
+  namespace: monitoring
 spec:
   destination:
-    name: ''
-    namespace: monitoring  # Namespace to deploy Loki into
-    server: 'https://kubernetes.default.svc'
+    namespace: loki
+    server: https://kubernetes.default.svc
+  project: default
   source:
     chart: loki-stack
-    repoURL: https://grafana.github.io/helm-charts  # Correct repository URL
-    targetRevision: 2.9.3  # Version 2.9.3 of Loki
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 2.9.11  # Ensure this version exists
     helm:
       values: |
         loki:
+          enabled: true
           image:
-            tag: "2.9.3"  # Specify the image version
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-  project: default
+            tag: "2.9.3"
+          persistence:
+            type: pvc
+            enabled: true
+            existingClaim: loki
+          securityContext:
+            runAsGroup: 10001
+            runAsUser: 10001
+
+        promtail:
+          enabled: true
+
+        fluent-bit:
+          enabled: false
+
+        grafana:
+          enabled: true
+          namespaceOverride: grafana
+          sidecar:
+            datasources:
+              enabled: false
+          image:
+            tag: 7.3.4
+          persistence:
+            type: pvc
+            enabled: true
+            existingClaim: grafana
+          securityContext:
+            runAsUser: 472
+            runAsGroup: 472
+          initChownData:
+            enabled: false
+
+        prometheus:
+          enabled: true
+          forceNamespace: prometheus
+          configmapReload:
+            prometheus:
+              enabled: false
+            alertmanager:
+              enabled: false
+          server:
+            persistentVolume:
+              enabled: true
+              existingClaim: prometheus-server
+              accessModes:
+                - ReadWriteMany
+            resources:
+              limits:
+                cpu: 800m
+                memory: 1Gi
+              requests:
+                cpu: 500m
+                memory: 512Mi
+          alertmanager:
+            persistentVolume:
+              enabled: true
+              existingClaim: prometheus-alertmanager
+              accessModes:
+                - ReadWriteMany
+            resources:
+              limits:
+                cpu: 100m
+                memory: 100Mi
+              requests:
+                cpu: 50m
+                memory: 50Mi
+          nodeExporter:
+            enabled: true
+            tolerations:
+              - key: node-role.kubernetes.io/master
+                effect: NoSchedule
+            resources:
+              limits:
+                cpu: 200m
+                memory: 50Mi
+              requests:
+                cpu: 100m
+                memory: 30Mi
+
+        filebeat:
+          enabled: false
+
+        logstash:
+          enabled: false
