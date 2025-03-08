@@ -2,11 +2,15 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: loki
-  namespace: argocd  
+  namespace: argocd
 spec:
   destination:
     namespace: monitoring
     server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true  # This will delete any resources that are no longer managed by ArgoCD
+      selfHeal: true
   project: default
   source:
     chart: loki-stack
@@ -18,4 +22,3 @@ spec:
           enabled: true
           image:
             tag: "2.9.3"
-         
