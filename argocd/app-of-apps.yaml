@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/sagitab/flaskDBgender'  # The repository URL where your apps are defined
-    path: 'argocd'  # Path to the directory where your individual app YAML files reside (flaskapp.yaml, grafana.yaml, etc.)
+    path: 'argocd/apps'  # Path to the directory where your individual app YAML files reside (flaskapp.yaml, grafana.yaml, etc.)
     targetRevision: HEAD  # Can be a specific branch or commit hash
   destination:
     server: 'https://kubernetes.default.svc'

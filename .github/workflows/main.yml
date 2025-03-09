@@ -333,18 +333,18 @@ jobs:
       - name: apply argocd flask app
         run: |
           cd argocd
-          kubectl apply -f argo-app.yaml 
+          kubectl apply -f app-of-apps.yaml
       # - name: Add Prometheus & Grafana Helm Repo (for ArgoCD to use)
       #   run: |
       #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
       #     helm repo add grafana https://grafana.github.io/helm-charts
       #     helm repo update
 
-      - name: Apply Monitoring App with kubectl in argocd
-        run: |
-          cd argocd
-          kubectl apply -f argocd_prometheus.yml
-          kubectl apply -f argocd_grafana.yml
-          kubectl apply -f argocd_loki.yml
-          kubectl apply -f dashboard.yml 
-          kubectl apply -f dash-loki.yml
+      # - name: Apply Monitoring App with kubectl in argocd
+      #   run: |
+      #     cd argocd
+      #     kubectl apply -f argocd_prometheus.yml
+      #     kubectl apply -f argocd_grafana.yml
+      #     kubectl apply -f argocd_loki.yml
+      #     kubectl apply -f dashboard.yml 
+      #     kubectl apply -f dash-loki.yml
