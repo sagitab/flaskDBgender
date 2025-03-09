@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-of-apps
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/sagitab/flaskDBgender'  # The repository URL where your apps are defined
+    path: 'argocd'  # Path to the directory where your individual app YAML files reside (flaskapp.yaml, grafana.yaml, etc.)
+    targetRevision: HEAD  # Can be a specific branch or commit hash
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: argocd  # Namespace where ArgoCD itself is installed
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true  # Ensure the namespaces for your apps are created
