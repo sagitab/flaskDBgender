@@ -68,9 +68,8 @@ jobs:
           REPO_NAME: "flaskaws"
           RUN_NUMBER: "${{ github.run_number }}"
         run: |
-          DELETE_IMAGE=$(( $RUN_NUMBER-20 ))
-          curl -X DELETE -H "Authorization: Bearer $DOCKER_PASSWORD" \
-          "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$REPO_NAME/tags/0.0.0.$DELETE_IMAGE"
+          chmod +x docker_clean.sh
+          ./docker_clean.sh "${{ secrets.DOCKER_USERNAME }}" "${{ secrets.DOCKER_DELETE }}"
      
 
       - name: Test
@@ -83,7 +82,7 @@ jobs:
           PORT=${{ secrets.PORT }}
           ENV
           GITHUB_RUN_NUMBER=${{ github.run_number }}
-          sed -i "s/flaskaws:0.0.0\.[0-9]\+/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml
+          #sed -i "s/flaskaws:0.0.0\.[0-9]\+/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml
 
 
           ls
