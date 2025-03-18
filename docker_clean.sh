@@ -17,14 +17,11 @@ if (( TOTAL_TAGS > KEEP_COUNT )); then
   DELETE_TAGS=("${TAG_ARRAY[@]:0:TOTAL_TAGS-KEEP_COUNT}")
 
   for TAG in "${DELETE_TAGS[@]}"; do
-    if [[ "$TAG" != "141#" ]]; then
       echo "Deleting image: $TAG"
       curl -X DELETE -H "Authorization: Bearer $DOCKER_PASSWORD" \
       "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$REPO_NAME/tags/$TAG"
-    else
-      echo "Skipping protected tag: $TAG"
     fi
   done
 else
   echo "No old images to delete. Less than or equal to $KEEP_COUNT images exist."
-fi  # ✅ Missing 'fi' is now added
+fi  
