@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     #change to secrets!!!!!!!!!!!!!!!!!!!1
     env:
-      MYSQL_HOST: mysql
-      MYSQL_USER: root
-      MYSQL_DB: mydb
-      PORT: 5002
+      MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+      MYSQL_USER: ${{ secrets.MYSQL_USER }}
+      MYSQL_DB: ${{ secrets.MYSQL_DB }}
+      PORT: ${{ secrets.PORT }}
 
     steps:
       # Stage 1: Clean workspace
@@ -73,278 +73,278 @@ jobs:
           "https://hub.docker.com/v2/repositories/$DOCKER_USERNAME/$REPO_NAME/tags/0.0.0.$DELETE_IMAGE"
      
 
-      # - name: Test
-      #   run: |
-      #     cat > .env << "ENV"  # Double quotes for expansion
-      #     MYSQL_HOST=mysql
-      #     MYSQL_USER=root
-      #     MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
-      #     MYSQL_DB=mydb
-      #     PORT=5002
-      #     ENV
-      #     GITHUB_RUN_NUMBER=${{ github.run_number }}
-      #     sed -i "s/flaskaws:0.0.0\.[0-9]\+/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml
+      - name: Test
+        run: |
+          cat > .env << "ENV"  # Double quotes for expansion
+          MYSQL_HOST=${{ secrets.MYSQL_HOST }}
+          MYSQL_USER=${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD=${{ secrets.SQL_PASS }}
+          MYSQL_DB=${{ secrets.MYSQL_DB }}
+          PORT=${{ secrets.PORT }}
+          ENV
+          GITHUB_RUN_NUMBER=${{ github.run_number }}
+          sed -i "s/flaskaws:0.0.0\.[0-9]\+/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml
 
 
-      #     ls
-      #     docker images
-      #     docker compose up -d  # Ensure Docker Compose V2 is used
-      #     sleep 1
-      #     docker compose ps
-      #     sleep 30
-      #     i=0
-      #     max_attempts=5
+          ls
+          docker images
+          docker compose up -d  # Ensure Docker Compose V2 is used
+          sleep 1
+          docker compose ps
+          sleep 30
+          i=0
+          max_attempts=5
           
-      #     while [ $i -lt $max_attempts ]; do
-      #       echo "Attempt $((i + 1)) of $max_attempts..."
-      #       if curl -sSf http://localhost:5002 > /dev/null; then
-      #         echo "Flask app is reachable."
-      #         exit 0
-      #       else
-      #         echo "Flask app is not reachable. Retrying in 5 seconds..."
-      #         sleep 5
-      #         i=$((i + 1))
-      #       fi
-      #     done
-
-      #     echo "Flask app failed to respond after $max_attempts attempts."
-      #     exit 1
-
-      - name: Authenticate with Google Cloud
-        id: auth
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCLOUD_KEY }}
-
-      - name: Authenticate with GCP
-        run: |
-          gcloud auth activate-service-account --key-file=$GOOGLE_GHA_CREDS_PATH
-          gcloud auth list
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
-          GOOGLE_GHA_CREDS_PATH: ${{ steps.auth.outputs.credentials_file_path }}
-
-
-           # Install Google Cloud SDK
-      - name: Install Google Cloud SDK
-        run: |
-          echo "Installing Google Cloud SDK..."
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-          echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          sudo apt-get update
-          sudo apt-get install google-cloud-sdk
-
-      - name: Install gke-gcloud-auth-plugin
-        run: |
-          sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
-          gke-gcloud-auth-plugin --version
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.10.4  # Specify your desired Terraform version
-
-      - name: Cache Terraform providers
-        uses: actions/cache@v3
-        with:
-          path: ~/.terraform.d/plugin-cache
-          key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
-          restore-keys: |
-            ${{ runner.os }}-terraform-
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Plan
-        run: terraform plan
-        env:
-          TF_VAR_mysql_password: ${{ secrets.MYSQL_PASSWORD }}
-          TF_VAR_build_number: ${{ github.run_number }}
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
-        env:
-          TF_VAR_mysql_password: ${{ secrets.SQL_PASS }}  # Pass MySQL password securely using GitHub secrets
-          TF_VAR_build_number: ${{ github.run_number }}
-
-      - name: Conect to gke cluster
-        run: |
-          # Retry mechanism for getting GKE credentials
-          MAX_RETRIES=5
-          RETRY_COUNT=0
-
-          while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
-            echo "Attempt $((RETRY_COUNT+1)) to get GKE credentials..."
-            
-            if gcloud container clusters get-credentials gke-cluster --region us-central1-a; then
-              echo "✅ Successfully got GKE credentials."
-              break
+          while [ $i -lt $max_attempts ]; do
+            echo "Attempt $((i + 1)) of $max_attempts..."
+            if curl -sSf http://localhost:$PORT > /dev/null; then
+              echo "Flask app is reachable."
+              exit 0
             else
-              echo "❌ Failed to get GKE credentials. Retrying in 10 seconds..."
-              RETRY_COUNT=$((RETRY_COUNT+1))
-              sleep 10
+              echo "Flask app is not reachable. Retrying in 5 seconds..."
+              sleep 5
+              i=$((i + 1))
             fi
           done
 
-          # If we exhausted all retries, fail the pipeline
-          if [[ $RETRY_COUNT -eq $MAX_RETRIES ]]; then
-            echo "🚨 ERROR: Reached max retries ($MAX_RETRIES). Failing pipeline."
-            exit 1
-          fi
+          echo "Flask app failed to respond after $max_attempts attempts."
+          exit 1
 
-          kubectl get nodes  # Verify connection
+  #     - name: Authenticate with Google Cloud
+  #       id: auth
+  #       uses: google-github-actions/auth@v1
+  #       with:
+  #         credentials_json: ${{ secrets.GCLOUD_KEY }}
 
-      - name: Install Helm
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  #     - name: Authenticate with GCP
+  #       run: |
+  #         gcloud auth activate-service-account --key-file=$GOOGLE_GHA_CREDS_PATH
+  #         gcloud auth list
+  #       env:
+  #         GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+  #         GOOGLE_GHA_CREDS_PATH: ${{ steps.auth.outputs.credentials_file_path }}
 
-      - name: Update Helm Chart Version
-        run: |
-          VERSION="0.1.${{ github.run_number }}"
-          sed -i "s/^version:.*/version: $VERSION/" myflaskchart/Chart.yaml
-          cat myflaskchart/Chart.yaml  # Debugging: Check the updated version
-      - name: Update Docker Image in values.yaml
-        run: |
-          sed -i 's|tag:.*|tag: "0.0.0.${{ github.run_number }}"|' myflaskchart/values.yaml
-          cat myflaskchart/values.yaml  # Debugging: Check the updated file
 
-      - name: Package Helm Chart
-        run: |
-          # Ensure the chart is packaged at the root of the repository
-          helm package myflaskchart -d .  # This will save the .tgz file in the root directory
-          ls -lrta  # List the files to verify the packaging
+  #          # Install Google Cloud SDK
+  #     - name: Install Google Cloud SDK
+  #       run: |
+  #         echo "Installing Google Cloud SDK..."
+  #         curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+  #         echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+  #         sudo apt-get update
+  #         sudo apt-get install google-cloud-sdk
 
-      - name: Update Helm Repo Index
-        run: |
-          # Update the index.yaml dynamically based on the location of the .tgz file
-          helm repo index . --url https://sagitab.github.io/helm_flask  # This will create the correct URL in index.yaml
-          ls -lrta  # Verify the index.yaml file update
+  #     - name: Install gke-gcloud-auth-plugin
+  #       run: |
+  #         sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
+  #         gke-gcloud-auth-plugin --version
 
-      - name: Push Helm Chart (tgz and index.yaml) to Helm Repo
-        env:
-          HELM_REPO_PAT: ${{ secrets.GIT_KEY }} 
-        run: |
-          set -x
-          git clone https://${HELM_REPO_PAT}@github.com/sagitab/helm_flask.git helmrepo
-          cd helmrepo
+  #     - name: Set up Terraform
+  #       uses: hashicorp/setup-terraform@v3
+  #       with:
+  #         terraform_version: 1.10.4  # Specify your desired Terraform version
 
-          git config --global user.name "github-actions-app"
-          git config --global user.email "github-actions@gmail.com"
+  #     - name: Cache Terraform providers
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: ~/.terraform.d/plugin-cache
+  #         key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-terraform-
 
-          # Remove old files and copy the new ones
-          rm -f *.tgz && rm -f index.yaml
-          cp ../*.tgz .  # Copy the newly packaged .tgz file
-          cp ../index.yaml .  # Copy the updated index.yaml
-          ls -lrta  # Verify the files
+  #     - name: Terraform Init
+  #       run: terraform init
 
-          git add .
-          git commit -m "Updated Helm chart version from APP REPO TRIGGER - Version 0.1.${{ github.run_number }}"
-          git push origin main
+  #     - name: Terraform Plan
+  #       run: terraform plan
+  #       env:
+  #         TF_VAR_mysql_password: ${{ secrets.MYSQL_PASSWORD }}
+  #         TF_VAR_build_number: ${{ github.run_number }}
 
-          echo "Pushed updated Helm chart to Helm repo"
+  #     - name: Terraform Apply
+  #       run: terraform apply -auto-approve
+  #       env:
+  #         TF_VAR_mysql_password: ${{ secrets.SQL_PASS }}  # Pass MySQL password securely using GitHub secrets
+  #         TF_VAR_build_number: ${{ github.run_number }}
 
-      # - name: Wait for Helm Chart to Be Available
-      #   run: |
-      #     echo "Waiting for Helm chart to be available on GitHub Pages..."
+  #     - name: Conect to gke cluster
+  #       run: |
+  #         # Retry mechanism for getting GKE credentials
+  #         MAX_RETRIES=5
+  #         RETRY_COUNT=0
+
+  #         while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
+  #           echo "Attempt $((RETRY_COUNT+1)) to get GKE credentials..."
+            
+  #           if gcloud container clusters get-credentials gke-cluster --region us-central1-a; then
+  #             echo "✅ Successfully got GKE credentials."
+  #             break
+  #           else
+  #             echo "❌ Failed to get GKE credentials. Retrying in 10 seconds..."
+  #             RETRY_COUNT=$((RETRY_COUNT+1))
+  #             sleep 10
+  #           fi
+  #         done
+
+  #         # If we exhausted all retries, fail the pipeline
+  #         if [[ $RETRY_COUNT -eq $MAX_RETRIES ]]; then
+  #           echo "🚨 ERROR: Reached max retries ($MAX_RETRIES). Failing pipeline."
+  #           exit 1
+  #         fi
+
+  #         kubectl get nodes  # Verify connection
+
+  #     - name: Install Helm
+  #       run: |
+  #         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+  #     - name: Update Helm Chart Version
+  #       run: |
+  #         VERSION="0.1.${{ github.run_number }}"
+  #         sed -i "s/^version:.*/version: $VERSION/" myflaskchart/Chart.yaml
+  #         cat myflaskchart/Chart.yaml  # Debugging: Check the updated version
+  #     - name: Update Docker Image in values.yaml
+  #       run: |
+  #         sed -i 's|tag:.*|tag: "0.0.0.${{ github.run_number }}"|' myflaskchart/values.yaml
+  #         cat myflaskchart/values.yaml  # Debugging: Check the updated file
+
+  #     - name: Package Helm Chart
+  #       run: |
+  #         # Ensure the chart is packaged at the root of the repository
+  #         helm package myflaskchart -d .  # This will save the .tgz file in the root directory
+  #         ls -lrta  # List the files to verify the packaging
+
+  #     - name: Update Helm Repo Index
+  #       run: |
+  #         # Update the index.yaml dynamically based on the location of the .tgz file
+  #         helm repo index . --url https://sagitab.github.io/helm_flask  # This will create the correct URL in index.yaml
+  #         ls -lrta  # Verify the index.yaml file update
+
+  #     - name: Push Helm Chart (tgz and index.yaml) to Helm Repo
+  #       env:
+  #         HELM_REPO_PAT: ${{ secrets.GIT_KEY }} 
+  #       run: |
+  #         set -x
+  #         git clone https://${HELM_REPO_PAT}@github.com/sagitab/helm_flask.git helmrepo
+  #         cd helmrepo
+
+  #         git config --global user.name "github-actions-app"
+  #         git config --global user.email "github-actions@gmail.com"
+
+  #         # Remove old files and copy the new ones
+  #         rm -f *.tgz && rm -f index.yaml
+  #         cp ../*.tgz .  # Copy the newly packaged .tgz file
+  #         cp ../index.yaml .  # Copy the updated index.yaml
+  #         ls -lrta  # Verify the files
+
+  #         git add .
+  #         git commit -m "Updated Helm chart version from APP REPO TRIGGER - Version 0.1.${{ github.run_number }}"
+  #         git push origin main
+
+  #         echo "Pushed updated Helm chart to Helm repo"
+
+  #     # - name: Wait for Helm Chart to Be Available
+  #     #   run: |
+  #     #     echo "Waiting for Helm chart to be available on GitHub Pages..."
           
-      #     for i in {1..6}; do
-      #       STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}" https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz)
+  #     #     for i in {1..6}; do
+  #     #       STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}" https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz)
 
-      #       if [[ "$STATUS_CODE" -eq 200 ]]; then
-      #         echo "Helm chart is available!"
-      #         break
-      #       fi
+  #     #       if [[ "$STATUS_CODE" -eq 200 ]]; then
+  #     #         echo "Helm chart is available!"
+  #     #         break
+  #     #       fi
 
-      #       echo "Helm chart not yet available. Retrying in 10 seconds..."
-      #       sleep 10
-      #     done
-
-
-
-      # Run the upgrade/install command!!
-      # - name: Deploy Helm Chart to GKE
-      #   run: |
-      #     helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
+  #     #       echo "Helm chart not yet available. Retrying in 10 seconds..."
+  #     #       sleep 10
+  #     #     done
 
 
-      # - name: Deploy Helm Chart to GKE
-      #   run: |
-      #     helm upgrade --install myflaskchart \
-      #       https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz \
-      #       --namespace default \
-      #       # --set mysql.password=${{ secrets.SQL_PASS }} \
-      #       # --set mysql.user=${{ secrets.MYSQL_USER }} \
-      #       # --set mysql.database=${{ secrets.MYSQL_DB }} \
-      #       # --set mysql.rootPassword=${{ secrets.SQL_PASS }} \   
-      #       # --force
 
-      # - name: Get External IP
-      #   run: |
-      #     echo "Waiting for external IP..."
-      #     for i in {1..30}; do
-      #       EXTERNAL_IP=$(kubectl get svc flask-app-service -n default -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-      #       if [[ -n "$EXTERNAL_IP" ]]; then
-      #         echo "External IP: $EXTERNAL_IP"
-      #         echo "EXTERNAL_IP=$EXTERNAL_IP" >> $GITHUB_ENV
-      #         break
-      #       fi
-      #       sleep 10
-      #     done
+  #     # Run the upgrade/install command!!
+  #     # - name: Deploy Helm Chart to GKE
+  #     #   run: |
+  #     #     helm upgrade --install myflaskchart https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz --namespace default
 
-      #!!!!!!!!!!!!!!!!!!!!!!!monitor!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      # - name: Add Prometheus Helm Repo
-      #   run: |
-      #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-      #     helm repo update
-      #     helm repo add grafana https://grafana.github.io/helm-charts
-      #     helm repo update
 
-      # - name: Install Monitoring Stack (Prometheus + Grafana) + Loki if Not Installed
-      #   run: |
-      #     # Check if Prometheus is already installed
-      #     if helm list -n monitoring | grep -q "monitoring"; then
-      #       echo "Prometheus stack is already installed. Skipping installation."
-      #     else
-      #       echo "Installing Prometheus stack..."
-      #       helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
-      #         --namespace monitoring --create-namespace -f monitoring_extra/promethues_values.yml
-      #     fi
+  #     # - name: Deploy Helm Chart to GKE
+  #     #   run: |
+  #     #     helm upgrade --install myflaskchart \
+  #     #       https://sagitab.github.io/helm_flask/myflaskchart-0.1.${{ github.run_number }}.tgz \
+  #     #       --namespace default \
+  #     #       # --set mysql.password=${{ secrets.SQL_PASS }} \
+  #     #       # --set mysql.user=${{ secrets.MYSQL_USER }} \
+  #     #       # --set mysql.database=${{ secrets.MYSQL_DB }} \
+  #     #       # --set mysql.rootPassword=${{ secrets.SQL_PASS }} \   
+  #     #       # --force
 
-      #     # Check if Loki is already installed
-      #     if helm list -n monitoring | grep -q "loki"; then
-      #       echo "Loki is already installed. Skipping installation."
-      #     else
-      #       echo "Installing Loki..."
-      #       helm upgrade --install loki grafana/loki-stack -n monitoring --set loki.image.tag=2.9.3
-      #     fi
-  #!!!!!!!!!!!!!!!!!!!!!argocd!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!
-      - name: Check if argocd namespace exists
-        run: |
-          if kubectl get namespace argocd; then
-            echo "Namespace argocd already exists, skipping creation."
-          else
-            kubectl create namespace argocd
-          fi
-      - name: Install ArgoCD using Helm
-        run: |
-          helm repo add argo https://argoproj.github.io/argo-helm
-          helm repo update
-          helm upgrade --install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
-      - name: apply argocd flask app
-        run: |
-          cd argocd
-          kubectl apply -f app-of-apps.yaml
-      # - name: Add Prometheus & Grafana Helm Repo (for ArgoCD to use)
-      #   run: |
-      #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-      #     helm repo add grafana https://grafana.github.io/helm-charts
-      #     helm repo update
+  #     # - name: Get External IP
+  #     #   run: |
+  #     #     echo "Waiting for external IP..."
+  #     #     for i in {1..30}; do
+  #     #       EXTERNAL_IP=$(kubectl get svc flask-app-service -n default -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  #     #       if [[ -n "$EXTERNAL_IP" ]]; then
+  #     #         echo "External IP: $EXTERNAL_IP"
+  #     #         echo "EXTERNAL_IP=$EXTERNAL_IP" >> $GITHUB_ENV
+  #     #         break
+  #     #       fi
+  #     #       sleep 10
+  #     #     done
 
-      # - name: Apply Monitoring App with kubectl in argocd
-      #   run: |
-      #     cd argocd
-      #     kubectl apply -f argocd_prometheus.yml
-      #     kubectl apply -f argocd_grafana.yml
-      #     kubectl apply -f argocd_loki.yml
-      #     kubectl apply -f dashboard.yml 
-      #     kubectl apply -f dash-loki.yml
+  #     #!!!!!!!!!!!!!!!!!!!!!!!monitor!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  #     # - name: Add Prometheus Helm Repo
+  #     #   run: |
+  #     #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  #     #     helm repo update
+  #     #     helm repo add grafana https://grafana.github.io/helm-charts
+  #     #     helm repo update
+
+  #     # - name: Install Monitoring Stack (Prometheus + Grafana) + Loki if Not Installed
+  #     #   run: |
+  #     #     # Check if Prometheus is already installed
+  #     #     if helm list -n monitoring | grep -q "monitoring"; then
+  #     #       echo "Prometheus stack is already installed. Skipping installation."
+  #     #     else
+  #     #       echo "Installing Prometheus stack..."
+  #     #       helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+  #     #         --namespace monitoring --create-namespace -f monitoring_extra/promethues_values.yml
+  #     #     fi
+
+  #     #     # Check if Loki is already installed
+  #     #     if helm list -n monitoring | grep -q "loki"; then
+  #     #       echo "Loki is already installed. Skipping installation."
+  #     #     else
+  #     #       echo "Installing Loki..."
+  #     #       helm upgrade --install loki grafana/loki-stack -n monitoring --set loki.image.tag=2.9.3
+  #     #     fi
+  # #!!!!!!!!!!!!!!!!!!!!!argocd!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!
+  #     - name: Check if argocd namespace exists
+  #       run: |
+  #         if kubectl get namespace argocd; then
+  #           echo "Namespace argocd already exists, skipping creation."
+  #         else
+  #           kubectl create namespace argocd
+  #         fi
+  #     - name: Install ArgoCD using Helm
+  #       run: |
+  #         helm repo add argo https://argoproj.github.io/argo-helm
+  #         helm repo update
+  #         helm upgrade --install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
+  #     - name: apply argocd flask app
+  #       run: |
+  #         cd argocd
+  #         kubectl apply -f app-of-apps.yaml
+  #     # - name: Add Prometheus & Grafana Helm Repo (for ArgoCD to use)
+  #     #   run: |
+  #     #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  #     #     helm repo add grafana https://grafana.github.io/helm-charts
+  #     #     helm repo update
+
+  #     # - name: Apply Monitoring App with kubectl in argocd
+  #     #   run: |
+  #     #     cd argocd
+  #     #     kubectl apply -f argocd_prometheus.yml
+  #     #     kubectl apply -f argocd_grafana.yml
+  #     #     kubectl apply -f argocd_loki.yml
+  #     #     kubectl apply -f dashboard.yml 
+  #     #     kubectl apply -f dash-loki.yml
