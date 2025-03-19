@@ -253,7 +253,7 @@ jobs:
             git config --global user.name "github-actions-app"
             git config --global user.email "github-actions@gmail.com"
             git add .
-            git commit -m "Updated Helm chart version from APP REPO TRIGGER - Version 0.1.${{ github.run_number }}"
+            git commit -m "[skip-ci]"
             git push origin main
             cd ..
          
