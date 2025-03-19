@@ -221,6 +221,11 @@ jobs:
           result=$(./tag_culc.sh "$GITHUB_RUN_NUMBER")
           sed -i "s/^version:.*/version: $result/" myflaskchart/Chart.yaml
           cat myflaskchart/Chart.yaml  # Debugging: Check the updated version
+
+      - name: Debug GitHub Actions Token
+        run: |
+          git config --list
+          git remote -v
       - name: Update Docker Image in values.yaml + update git
         env:
           REPO_PAT: ${{ secrets.GIT_FLASK }} 
@@ -235,8 +240,9 @@ jobs:
           git config --global user.email "github-actions@gmail.com"
           git add .
           git commit -m "Automated update [skip-ci]"
-          git push https://${REPO_PAT}@github.com/sagitab/flaskDBgender.git
-
+          #git push https://${REPO_PAT}@github.com/sagitab/flaskDBgender.git
+          git checkout -b update-bot
+          git push https://${REPO_PAT}@github.com/sagitab/flaskDBgender.git update-bot
          
 
       - name: Package Helm Chart
