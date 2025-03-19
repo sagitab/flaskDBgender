@@ -8,7 +8,7 @@ if (( run_number >= 1000 )); then
 fi
 
 # Extract digits
-units =$(( run_number % 10 ))
+units=$(( run_number % 10 ))
 run_number=$(( run_number / 10 ))
 tens=$(( run_number % 10 ))
 run_number=$(( run_number / 10 ))
