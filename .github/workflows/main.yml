@@ -228,7 +228,7 @@ jobs:
         run: |
           git config --list
           git remote -v
-          curl https://${REPO_PAT}@github.com/sagitab/flaskDBgender.git 
+          curl -u "sagitab:$REPO_PAT" https://api.github.com/user
       - name: Update Docker Image in values.yaml + update git
         env:
           REPO_PAT: ${{ secrets.GIT_FLASK }} 
