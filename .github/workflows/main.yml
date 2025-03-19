@@ -222,6 +222,8 @@ jobs:
           sed -i "s/^version:.*/version: $result/" myflaskchart/Chart.yaml
           cat myflaskchart/Chart.yaml  # Debugging: Check the updated version
       - name: Update Docker Image in values.yaml + update git
+        env:
+          HELM_REPO_PAT: ${{ secrets.GIT_KEY }} 
         run: |
           GITHUB_RUN_NUMBER=${{ github.run_number }}
           chmod +x tag_culc.sh
@@ -233,7 +235,7 @@ jobs:
           git config --global user.email "github-actions@gmail.com"
           git add .
           git commit -m "Automated update [skip-ci]"
-          git push https://github.com/sagitab/flaskDBgender.git
+          git push https://${HELM_REPO_PAT}github.com/sagitab/flaskDBgender.git
 
          
 
