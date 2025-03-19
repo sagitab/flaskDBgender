@@ -93,7 +93,7 @@ jobs:
           chmod +x tag_culc.sh
           result=$(./tag_culc.sh "$GITHUB_RUN_NUMBER")
           echo $result
-          sed -i "s/flaskaws:[0-9]\+\.[0-9]\+\.[0-9]\+/flaskaws:$result/" docker-compose.yml
+          sed -i "s|flaskaws:[0-9]\+\.[0-9]\+\.[0-9]\+|flaskaws:$result|" docker-compose.yml
 
 
           ls
