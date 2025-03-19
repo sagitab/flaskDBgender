@@ -90,7 +90,9 @@ jobs:
           PORT=${{ secrets.PORT }}
           ENV
           GITHUB_RUN_NUMBER=${{ github.run_number }}
-          sed -i "s/flaskaws:0.0.0\.[0-9]\+/flaskaws:0.0.0.$GITHUB_RUN_NUMBER/" docker-compose.yml
+          chmod +x tag_culc.sh
+          result=$(./tag_culc.sh "$GITHUB_RUN_NUMBER")
+          sed -i "s/flaskaws:[0-9]\+\.[0-9]\+\.[0-9]\+/flaskaws:$result/" docker-compose.yml
 
 
           ls
@@ -207,12 +209,17 @@ jobs:
 
       - name: Update Helm Chart Version
         run: |
-          VERSION="0.1.${{ github.run_number }}"
-          sed -i "s/^version:.*/version: $VERSION/" myflaskchart/Chart.yaml
+          GITHUB_RUN_NUMBER=${{ github.run_number }}
+          chmod +x tag_culc.sh
+          result=$(./tag_culc.sh "$GITHUB_RUN_NUMBER")
+          sed -i "s/^version:.*/version: $result/" myflaskchart/Chart.yaml
           cat myflaskchart/Chart.yaml  # Debugging: Check the updated version
       - name: Update Docker Image in values.yaml
         run: |
-          sed -i 's|tag:.*|tag: "0.0.0.${{ github.run_number }}"|' myflaskchart/values.yaml
+          GITHUB_RUN_NUMBER=${{ github.run_number }}
+          chmod +x tag_culc.sh
+          result=$(./tag_culc.sh "$GITHUB_RUN_NUMBER")
+          sed -i 's|tag:.*|tag: "$result"|' myflaskchart/values.yaml
           cat myflaskchart/values.yaml  # Debugging: Check the updated file
 
       - name: Package Helm Chart
