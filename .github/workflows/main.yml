@@ -223,9 +223,12 @@ jobs:
           cat myflaskchart/Chart.yaml  # Debugging: Check the updated version
 
       - name: Debug GitHub Actions Token
+        env:
+          REPO_PAT: ${{ secrets.GIT_FLASK }} 
         run: |
           git config --list
           git remote -v
+          curl https://${REPO_PAT}@github.com/sagitab/flaskDBgender.git 
       - name: Update Docker Image in values.yaml + update git
         env:
           REPO_PAT: ${{ secrets.GIT_FLASK }} 
