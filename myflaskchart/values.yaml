@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: sagisen/flaskaws
-  tag: "0.0.0.114"
+  tag: "3.3.4"
   pullPolicy: IfNotPresent
 mysql:
   image: mysql:8.0
