@@ -11,6 +11,8 @@ on:
 jobs:
   ci-cd:
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip-ci]')"  # This skips the whole job
+
     #change to secrets!!!!!!!!!!!!!!!!!!!1
     env:
       MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
@@ -19,12 +21,6 @@ jobs:
       PORT: ${{ secrets.PORT }}
 
     steps:
-      - name: Check commit message
-        run: |
-          if git log -1 --pretty=%B | grep -q '\[skip-ci\]'; then
-            echo "Skipping CI as commit message contains [skip-ci]"
-            exit 0
-          fi
       # Stage 1: Clean workspace
       - name: Clean Workspace
         run: |
