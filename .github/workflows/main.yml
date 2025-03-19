@@ -19,6 +19,12 @@ jobs:
       PORT: ${{ secrets.PORT }}
 
     steps:
+      - name: Check commit message
+        run: |
+          if git log -1 --pretty=%B | grep -q '\[skip-ci\]'; then
+            echo "Skipping CI as commit message contains [skip-ci]"
+            exit 0
+          fi
       # Stage 1: Clean workspace
       - name: Clean Workspace
         run: |
@@ -215,13 +221,21 @@ jobs:
           result=$(./tag_culc.sh "$GITHUB_RUN_NUMBER")
           sed -i "s/^version:.*/version: $result/" myflaskchart/Chart.yaml
           cat myflaskchart/Chart.yaml  # Debugging: Check the updated version
-      - name: Update Docker Image in values.yaml
+      - name: Update Docker Image in values.yaml + update git
         run: |
           GITHUB_RUN_NUMBER=${{ github.run_number }}
           chmod +x tag_culc.sh
           result=$(./tag_culc.sh "$GITHUB_RUN_NUMBER")
           sed -i 's|tag:.*|tag: "$result"|' myflaskchart/values.yaml
           cat myflaskchart/values.yaml  # Debugging: Check the updated file
+          #update in orgin repo
+          git config --global user.name "github-actions-app"
+          git config --global user.email "github-actions@gmail.com"
+          git add .
+          git commit -m "Automated update [skip-ci]"
+          git push https://github.com/sagitab/flaskDBgender.git
+
+         
 
       - name: Package Helm Chart
         run: |
@@ -255,6 +269,8 @@ jobs:
           git add .
           git commit -m "Updated Helm chart version from APP REPO TRIGGER - Version 0.1.${{ github.run_number }}"
           git push origin main
+
+
 
           echo "Pushed updated Helm chart to Helm repo"
 
