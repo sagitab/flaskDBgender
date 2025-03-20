@@ -243,7 +243,7 @@ jobs:
             chmod +x tag_culc.sh
             result=$(./tag_culc.sh "$GITHUB_RUN_NUMBER")
             sed -i "s/^version:.*/version: $result/" myflaskchart/Chart.yaml
-            sed -i 's|tag:.*|tag: "$result"|' myflaskchart/values.yaml
+            sed -i "s|tag:.*|tag: $result|" myflaskchart/values.yaml
             sed -i "s|flaskaws:[0-9]\+\.[0-9]\+\.[0-9]\+|flaskaws:$result|" docker-compose.yml
 
             git config --global user.name "github-actions-app"
