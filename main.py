@@ -162,7 +162,6 @@ def post_add_img():
 
         # Get the name from the form
         name = request.form['name']
-        #formatted_src = filepath.replace('/', '\\')
         insert_img(name,filename)
         msg="success!!"
     else:
