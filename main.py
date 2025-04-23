@@ -129,13 +129,14 @@ def insert_img(name,path):
 def index():
     counter = getCounter()
     counter += 1
-    if updateCounter(counter):
-        logging.debug("Counter updated")
-    else:
-        logging.debug("Failed to update counter")
+    updateCounter(counter)
+    # if updateCounter(counter):
+    #     logging.debug("Counter updated")
+    # else:
+    #     logging.debug("Failed to update counter")
     
     pic = getPic()
-    logging.debug(f"Returning with {counter} visits and picture {pic}")
+    # logging.debug(f"Returning with {counter} visits and picture {pic}")
     return render_template('index.html', src=pic, visits=counter)
 
 # @app.route('/add_img')
