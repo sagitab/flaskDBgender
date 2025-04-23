@@ -365,7 +365,7 @@ jobs:
       #       echo "Installing Loki..."
       #       helm upgrade --install loki grafana/loki-stack -n monitoring --set loki.image.tag=2.9.3
       #     fi
-  #!!!!!!!!!!!!!!!!!!!!!argocd!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!!
+  #!!!!!!!!!!!!!!!!!!!!!argocd!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!!!
       - name: Check if argocd namespace exists
         run: |
           if kubectl get namespace argocd; then
