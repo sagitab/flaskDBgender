@@ -3,26 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gender Detection</title>
+    <title>Eminem</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-image: url("../static/uploads/eminem.png");
+            background-repeat: repeat;
+            background-size: auto; /* Keeps the original image size */
+        }
+        h2 {
+            font-size: 2em;
+            margin-top: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        img {
+            height: 30%;
+            width: 30%;
+            border-radius: 10px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+        .black-button {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s ease;
+  transform: translateY(0);
+}
+
+.black-button:hover {
+  background-color: #222;
+}
+
+.black-button:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+.button-bottom-center {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+    </style>
 </head>
 <body>
-    <h2>Visitors {{ visits }}</h2>
-    <h1>Gender Detection by Name?????????</h1>
-    
-    <form method="POST" action="/detect_gender">
-        <label for="name">Enter a name:</label>
-        <input type="text" id="name" name="name" required>
-        <button type="submit">Detect gender</button>
-    </form>
-    <img alt="photo" style="height: 30%; width: 30%;" 
-    src="{{ src }}"/>
-
-
-    {% if name %}
-        <h2>Results</h2>
-        <p>Name: {{ name }}</p>
-        <p>Gender: {{ gender }}</p>
-        <p>Probability: {{ probability }}%</p>
-    {% endif %}
+    <h2>Visitors: {{ visits }}!!</h2>
+    <img alt="photo" src="{{ src }}"/> 
+    <div >
+    <button class="black-button button-bottom-center" onclick="callIndex()">Click me!</button>
+    </div>
 </body>
 </html>
+<script>
+    function callIndex() {
+      fetch('/')
+        .then(response => response.json())
+        .then(data => console.log(data.message))
+        .catch(error => console.error('Error:', error));
+    }
+  </script>
+  
