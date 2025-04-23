@@ -382,7 +382,7 @@ jobs:
         run: |
           cd argocd
           kubectl apply -f app-of-apps.yaml
-      # - name: Add Prometheus & Grafana Helm Repo (for ArgoCD to use)
+      # - name: Add Prometheus & Grafana Helm Repo (for ArgoCD to use)11
       #   run: |
       #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
       #     helm repo add grafana https://grafana.github.io/helm-charts
