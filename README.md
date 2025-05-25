@@ -25,7 +25,7 @@ The application is monitored using **Prometheus**, **Loki**, and **Grafana**, wi
   Prometheus, Loki, and Grafana used for metrics, logs, and visualizations.
 
 ---
-![Alt text](devops-project%20(1).jpg)
+![Alt text](devops-project%20(1).png)
 
 ## 📌 Setup Instructions
 
