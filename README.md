@@ -1,21 +1,28 @@
-# 🚀 DevOps Project
+# DevOps Project
 
-This project involves a **Flask-based web application** that is containerized with **Docker**. The application is deployed in **Google Kubernetes Engine (GKE)**, with automated **CI/CD pipelines** managed using **GitHub Actions**. The pipeline handles **building and pushing the Docker image, testing, and managing image lifecycle**.
+This project involves a Flask-based web application containerized with Docker and deployed on **Google Kubernetes Engine (GKE)** using **ArgoCD** for GitOps-based continuous deployment. CI/CD is managed using **GitHub Actions**, handling Docker image builds, testing, and image lifecycle automation.
 
-The application is monitored using **Prometheus** for data collection, **Loki** for log aggregation, and **Grafana** for real-time data visualization.  
-Sensitive data and credentials are securely handled using **GitHub Secrets**.
+The application is monitored using **Prometheus**, **Loki**, and **Grafana**, with dashboards accessible via **LoadBalancer**. Sensitive data is securely stored using **GitHub Secrets**.
 
 ---
 
 ## 🔹 Key Features
 
-- **Flask Web Application**: Built with Flask and exposed as a web service. Containerized using **Docker** for portability.
-- **CI/CD Pipeline**: Managed with **GitHub Actions**, including:
-  - **CI**: Builds the Docker image, runs tests, and pushes to Docker Hub.
-  - **CD**: Provisions a **GKE cluster with Terraform** and deploys via **Helm**.
-- **Docker Image Lifecycle**: Old Docker images are cleaned up automatically.
-- **Testing**: The CI pipeline ensures the application functions correctly before deployment.
-- **GKE & Kubernetes**: The app is deployed to **GKE**, and **Helm charts** simplify deployment management.
+- **Flask Web Application**  
+  Built with Flask and Dockerized for portability.
+
+- **CI/CD Pipeline with GitHub Actions**  
+  - **CI**: Builds Docker image, runs tests, and pushes to Docker Hub or Artifact Registry.  
+  - **CD**: Uses ArgoCD to sync and deploy the application to GKE via Helm.
+
+- **GitOps with ArgoCD**  
+  Declarative deployment managed through GitHub repository. ArgoCD ensures cluster state matches the Git source.
+
+- **Image Lifecycle Management**  
+  Old Docker images are automatically cleaned up to optimize storage.
+
+- **Monitoring Stack**  
+  Prometheus, Loki, and Grafana used for metrics, logs, and visualizations.
 
 ---
 ![Alt text](devops-project%20(1).jpg)
@@ -24,118 +31,120 @@ Sensitive data and credentials are securely handled using **GitHub Secrets**.
 
 ### Prerequisites
 
-Ensure you have the following installed:
+Install:
 
-- **Docker** (for containerization)
-- **kubectl** (Kubernetes CLI)
-- **Helm** (Kubernetes package manager)
-- **Terraform** (for infrastructure provisioning)
-- **Google Cloud SDK** (for GKE authentication)
-- **GitHub CLI** (for managing GitHub Actions)
-
-### Steps to Set Up Locally
-
-#### Clone the Repository
-
-```
-git clone https://github.com/sagitab/flaskDBgender.git
-cd flaskDBgender
-```
-
-#### Build and Run the Application Locally
-
-```
-docker-compose up -d
-```
-
-#### Test the Application Locally
-
-Access the Flask app at:
-
-```
-http://localhost:5002
-```
+- Docker
+- `kubectl`
+- Helm
+- Terraform
+- Google Cloud SDK (`gcloud`)
+- GitHub CLI
+- ArgoCD CLI (optional)
 
 ---
 
-## 🚀 CI/CD Workflow Explanation
+## 🔧 Local Setup
+
+```bash
+git clone https://github.com/sagitab/flaskDBgender.git
+cd flaskDBgender
+docker-compose up -d
+```
+
+App URL (local):  
+**http://localhost:5002**
+
+---
+
+## 🚀 CI/CD Workflow
 
 ### Continuous Integration (CI)
 
-- The GitHub Actions workflow is triggered on every commit.
-- The pipeline builds the Docker image and runs automated tests.
-- If tests pass, the image is pushed to Docker Hub or Google Artifact Registry.
+- Triggered on each commit.
+- Builds and tests the Docker image.
+- Pushes image to container registry on success.
 
 ### Continuous Deployment (CD)
 
-- Terraform provisions the GKE cluster.
-- The Helm chart is used to deploy the application to Kubernetes.
+- GKE infrastructure is provisioned with Terraform.
+- ArgoCD watches the GitHub repo and syncs the Kubernetes manifests automatically using Helm.
 
 ---
 
 ## 📦 Deployment Steps
 
-### Authenticate with GCP & Configure GKE
+### 1. Authenticate with GCP
 
-```
+```bash
 gcloud auth login
 gcloud container clusters get-credentials cluster --region us-central1-a
 ```
 
-### Apply Terraform to Provision Infrastructure
+### 2. Provision GKE with Terraform
 
-```
+```bash
 terraform init
 terraform apply -auto-approve
 ```
 
-### Deploy Application with Helm
+### 3. Install ArgoCD
 
-```
-helm install flask-app ./helm-chart
+```bash
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
 
-### Verify Deployment
+### 4. Access ArgoCD UI
 
+```bash
+kubectl get svc argocd-server -n argocd
 ```
-kubectl get pods
-kubectl get services
+
+Open in browser using the `EXTERNAL-IP` of the ArgoCD server (port 443):  
+**https://<external-ip>**
+
+**Default Login:**
+
+```bash
+Username: admin
+Password: $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 ```
+
+> 🔒 Change the default password after first login.
 
 ---
 
-## 🔒 Security Considerations
-
-- **Secrets Management**: All sensitive data (API keys, database credentials) are stored securely in GitHub Secrets and never committed to the repository.
-- **Ignore files**: `.dockerignore`, `.gitignore`, `.helmignore`
-
----
-
-## 📊 Monitoring Setup
+## 📊 Monitoring Stack
 
 ### Prometheus (Metrics Collection)
 
-- Collects application metrics such as request count and response times.
+Collects app metrics like response time and request volume.
 
 ### Loki (Log Aggregation)
 
-- Collects and centralizes logs from application pods.
+Streams logs from app containers.
 
 ### Grafana (Visualization)
 
-#### Port forward Grafana:
+Grafana is exposed via **LoadBalancer**. To access it:
 
-```
-kubectl port-forward service/monitoring-grafana -n monitoring 3000:80
-```
-
-#### Open Grafana Dashboard:
-
-```
-http://localhost:3000
+```bash
+kubectl get svc -n monitoring
 ```
 
-#### Default Login:
+Open your browser at the EXTERNAL-IP of the `grafana` service (port 80):  
+**http://<external-ip>**
 
-- **User:** `admin`
-- **Password:** `prom-operator` (Change immediately after logging in)
+**Login:**
+
+- Username: `admin`  
+- Password: `admin` *(or as configured in your Helm values)*
+
+> 🔐 Change the password after first login.
+
+---
+
+## 🔒 Security
+
+- All secrets (API keys, DB credentials) are securely stored in **GitHub Secrets**.
+- `.gitignore`, `.dockerignore`, and `.helmignore` prevent sensitive files from being committed.
